@@ -19,10 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import CustomInput from "./CommonField";
-
-import { authformSchema } from "@/lib/utils";
-import { authFormSchema } from "@/lib/utils";
-
 import { authFormSchema } from "@/lib/utils";
 
 import { Loader2 } from "lucide-react";
@@ -34,11 +30,6 @@ const AuthForm = ({ type }: { type: string }) => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-
-  const formSchema = authformSchema(type);
-
-  const formSchema = authFormSchema(type);
 
 
   const formSchema = authFormSchema(type);

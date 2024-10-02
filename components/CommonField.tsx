@@ -1,23 +1,6 @@
 import React from "react";
 import { FormControl, FormField, FormLabel, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
-
-
-import { Control, FieldPath } from "react-hook-form";
-import { z } from "zod";
-import { authformSchema } from "@/lib/utils";
-
-const formSchema = authformSchema("sign-up");
-
-
-
-import { Control, FieldPath } from "react-hook-form";
-import { z } from "zod";
-import { authFormSchema } from "@/lib/utils";
-
-const formSchema = authFormSchema("sign-up");
-
-
 import { Control, FieldPath } from "react-hook-form";
 import { z } from "zod";
 import { authFormSchema } from "@/lib/utils";
