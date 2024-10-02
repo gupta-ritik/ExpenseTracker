@@ -1,6 +1,38 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Expense Tracker
+
+## Overview
+
+The Expense Tracker is a web application built with Next.js that allows users to track their expenses efficiently. Users can add, view, and manage their expenses through a user-friendly interface.
+
+## Features
+
+- User authentication (signup/login)
+- Add, edit, and delete expenses
+- View expenses in a list format
+- Filter expenses by date or category
+- Responsive design for accessibility on various devices
+
+## Tech Stack
+
+- **Next.js**: React framework for building server-side rendered applications.
+- **TypeScript**: Adds static typing to JavaScript, improving code quality and maintainability.
+- **Tailwind CSS**: Utility-first CSS framework for styling the application.
+- **Node.js**: JavaScript runtime for server-side logic.
+- **MongoDB (or other database)**: For storing user and expense data.
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js and npm installed on your machine.
+- A code editor (e.g., VSCode).
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/gupta-ritik/ExpenseTracker.git
+   cd ExpenseTracker
 
 First, run the development server:
 
