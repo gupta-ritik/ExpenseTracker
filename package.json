@@ -9,16 +9,29 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.0.2",
+    "@hookform/resolvers": "^3.6.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@sentry/nextjs": "^8.15.0",
+    "chart.js": "^4.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dwolla-v2": "^3.4.0",
     "lucide-react": "^0.395.0",
     "next": "14.2.4",
+    "node-appwrite": "^13.0.0",
+    "plaid": "^26.0.0",
     "query-string": "^9.0.0",
     "react": "^18",
+    "react-chartjs-2": "^5.2.0",
+    "react-countup": "^6.5.3",
     "react-dom": "^18",
+    "react-hook-form": "^7.52.0",
+    "react-plaid-link": "^3.5.2",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
