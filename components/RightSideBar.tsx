@@ -17,10 +17,6 @@ const RightSideBar = ({ user, transactions, banks }: RightSidebarProps) => {
 
             <span className="text-5xl font-bold text-blue-500">
               {user?.name?.[0] ?? "U"}
-
-            <span className="text-5xl font-bold text-blue-950">
-              {user.name[0]}
-
             </span>
           </div>
 

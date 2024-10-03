@@ -1,6 +1,12 @@
 import React from "react";
 
-const Pagination = () => {
+type PaginationProps = {
+  totalPages: number;
+  page: number;
+};
+
+
+const Pagination: React.FC<PaginationProps> = ({ totalPages, page }) => {
   return <div>pagenation</div>;
 };
 
