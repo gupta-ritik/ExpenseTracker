@@ -36,7 +36,7 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
 };
 
 export const signIn = async ({ email, password }: signInProps) => {
-  try {
+
     console.log("Hello");
     const { account } = await createAdminClient();
     const session = await account.createEmailPasswordSession(email, password);
@@ -51,14 +51,11 @@ export const signIn = async ({ email, password }: signInProps) => {
     const user = await getUserInfo({ userId: session.userId });
 
     return parseStringify(user);
-  } catch (error) {
-    console.error("Error", error);
-  }
+  
 };
 export const signUp = async (userData: SignUpParams) => {
   let newUserAccount;
-  try {
-    // Create a user account
+
     const { account, database } = await createAdminClient();
 
     newUserAccount = await account.create(
@@ -99,9 +96,7 @@ export const signUp = async (userData: SignUpParams) => {
       secure: true,
     });
     return parseStringify(newUser);
-  } catch (err) {
-    console.log(err);
-  }
+  
 };
 export async function getLoggedInUser() {
   try {

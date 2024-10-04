@@ -28,6 +28,7 @@
     "react-countup": "^6.5.3",
     "react-dom": "^18",
     "react-hook-form": "^7.52.0",
+    "react-hot-toast": "^2.4.1",
     "react-plaid-link": "^3.5.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
