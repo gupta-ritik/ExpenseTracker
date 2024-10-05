@@ -67,3 +67,10 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to view the project.
+
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png" width="35" height="35"> Contributors
+
+Big thanks to all the contributors! 🎉
+
+<a href="https://github.com/gupta-ritik/ExpenseTracker/pulse"> <img align="center" src="https://contrib.rocks/image?max=100&repo=gupta-ritik/ExpenseTracker" /> </a> 
+
