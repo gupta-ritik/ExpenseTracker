@@ -10,22 +10,43 @@ const TransactionHistory = async ({
   searchParams: { id, page },
 }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
+
+  // Fetch logged-in user data
   const loggedIn = await getLoggedInUser();
-  let accounts 
-  if (loggedIn){
-    accounts = await getAccounts({
-        userId: loggedIn.$id,
-      });
-  }
-  else{
-    accounts = null;
+
+  // Check if the user is logged in
+  if (!loggedIn) {
+    return (
+      <div className="transactions">
+        <HeaderBox
+          title="Transaction History"
+          subtext="You need to be logged in to view transaction history."
+        />
+      </div>
+    );
   }
 
-  if (!accounts) return;
+  // Fetch accounts using the logged-in user's ID
+  const accounts = await getAccounts({
+    userId: loggedIn.$id,
+  });
+
+  // Check if accounts were fetched successfully
+  if (!accounts || accounts.data.length === 0) {
+    return (
+      <div className="transactions">
+        <HeaderBox
+          title="Transaction History"
+          subtext="No accounts found for this user."
+        />
+      </div>
+    );
+  }
 
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
 
+  // Fetch specific account details
   const account = await getAccount({ appwriteItemId });
 
   const rowsPerPage = 10;
@@ -38,6 +59,7 @@ const TransactionHistory = async ({
     indexOfFirstTransaction,
     indexOfLastTransaction
   );
+
   return (
     <div className="transactions">
       <div className="transactions-header">
