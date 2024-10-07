@@ -8,6 +8,15 @@
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/gupta-ritik/ExpenseTracker)
 ![Stars](https://img.shields.io/github/stars/gupta-ritik/ExpenseTracker)
 
+## 📋 Table of Contents
+- [Tech Stack](#-tech-stack)
+- [Highlighted Features](#-highlighted-features)
+- [Quick Start](#-quick-start)
+- [Contributing](#-contributing)
+- [Contributors](#our-valuable-contributors-)
+- [License](#-license)
+- [Feedback & Support](#-feedback--support)
+
 ## ⚙️ Tech Stack
 ### Frontend: Next.js, TypeScript, React Hook Form, Zod, TailwindCSS, Chart.js, ShadCN
 ![NextJs](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) 
