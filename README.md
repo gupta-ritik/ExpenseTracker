@@ -8,6 +8,15 @@
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/gupta-ritik/ExpenseTracker)
 ![Stars](https://img.shields.io/github/stars/gupta-ritik/ExpenseTracker)
 
+## 📋 Table of Contents
+- [Tech Stack](#-tech-stack)
+- [Highlighted Features](#-highlighted-features)
+- [Quick Start](#-quick-start)
+- [Contributing](#-contributing)
+- [Contributors](#our-valuable-contributors-)
+- [License](#-license)
+- [Feedback & Support](#-feedback--support)
+
 ## ⚙️ Tech Stack
 ### Frontend: Next.js, TypeScript, React Hook Form, Zod, TailwindCSS, Chart.js, ShadCN
 ![NextJs](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) 
@@ -74,15 +83,36 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ## 👨‍💻 Contributing
 
-We welcome contributions! Feel free to fork this repository and submit a pull request. For major changes, please open an issue first to discuss what you'd like to change.
+We welcome all contributions! If you'd like to contribute, follow these steps:
 
-### Steps to Contribute
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Open a pull request
+### Steps to Contribute:
+1. **Fork** this repository by clicking the "Fork" button at the top right of the repository page.
+2. **Clone** your forked repository to your local machine:
+    ```bash
+    git clone https://github.com/your-username/ExpenseTracker.git
+    ```
+3. **Create a new feature branch** to work on your changes:
+    ```bash
+    git checkout -b feature-branch-name
+    ```
+4. **Make your changes** in the codebase.
+5. **Commit your changes** with a meaningful commit message:
+    ```bash
+    git add .
+    git commit -m "Added feature or fix description"
+    ```
+6. **Push your changes** to your forked repository:
+    ```bash
+    git push origin feature-branch-name
+    ```
+7. **Create a pull request** to the original repository:
+    - Go to your forked repository on GitHub.
+    - Click the "Compare & pull request" button.
+    - Add a description and submit your pull request.
 
-Please adhere to this project's code of conduct.
+For major changes, please open an issue first to discuss your proposed changes.
+
+Please make sure to follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ---
 
