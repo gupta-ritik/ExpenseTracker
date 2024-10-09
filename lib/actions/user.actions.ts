@@ -37,10 +37,15 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
 
 export const signIn = async ({ email, password }: signInProps) => {
   try {
-    console.log("Hello");
     const { account } = await createAdminClient();
+
+
     const session = await account.createEmailPasswordSession(email, password);
 
+ 
+    const user = await getUserInfo({ userId: session.userId });
+
+    // Store session token in cookies
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -48,17 +53,21 @@ export const signIn = async ({ email, password }: signInProps) => {
       secure: true,
     });
 
-    const user = await getUserInfo({ userId: session.userId });
-
-    return parseStringify(user);
+    // Return user data AND the session token
+    return parseStringify({
+      user: user,
+      token: session.secret, 
+    });
   } catch (error) {
-    console.error("Error", error);
+    console.error("Error during sign-in:", error);
+    return null; 
   }
 };
+
 export const signUp = async (userData: SignUpParams) => {
   let newUserAccount;
   try {
-    // Create a user account
+
     const { account, database } = await createAdminClient();
 
     newUserAccount = await account.create(
@@ -68,6 +77,7 @@ export const signUp = async (userData: SignUpParams) => {
       `${userData.firstName} ${userData.lastName}`
     );
     if (!newUserAccount) throw new Error("Error creating user account");
+
     const dwollaCustomerUrl = await createDwollaCustomer({
       ...userData,
       type: "personal",
@@ -87,22 +97,30 @@ export const signUp = async (userData: SignUpParams) => {
         dwollaCustomerUrl,
       }
     );
+
     const session = await account.createEmailPasswordSession(
       userData.email,
       userData.password
     );
 
+    // Store session token in cookies
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
       sameSite: "strict",
       secure: true,
     });
-    return parseStringify(newUser);
+
+    // Return user data AND the session token
+    return parseStringify({
+      user: newUser,
+      token: session.secret, // Include the token in the response
+    });
   } catch (err) {
     console.log(err);
   }
 };
+
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
