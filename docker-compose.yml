@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    image: nextapp
+    build:
+      context: .  # Use the current directory
+      dockerfile: Dockerfile
+    command: sh -c "npm i && npm run dev"
+    restart: always  # Specify the Dockerfile
+    ports:
+      - "3000:3000"  # Map port 3000 
+    volumes:
+      - ./app:/nextapp/app 
+      - ./components:/nextapp/components
+      - ./constants:/nextapp/constants
+      - ./lib:/nextapp/lib
+      - ./public:/nextapp/public
+      - ./types:/nextapp/types # Bind mount the current directory to /nextapp in the container
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_APPWRITE_ENDPOINT: ${NEXT_PUBLIC_APPWRITE_ENDPOINT}
+      NEXT_PUBLIC_APPWRITE_PROJECT: ${NEXT_PUBLIC_APPWRITE_PROJECT}
+      APPWRITE_DATABASE_ID: ${APPWRITE_DATABASE_ID}
+      APPWRITE_USER_COLLECTION_ID: ${APPWRITE_USER_COLLECTION_ID} 
+      APPWRITE_ITEM_COLLECTION_ID: ${APPWRITE_ITEM_COLLECTION_ID}
+      APPWRITE_BANK_COLLECTION_ID: ${APPWRITE_BANK_COLLECTION_ID}
+      APPWRITE_TRANSACTION_COLLECTION_ID: ${APPWRITE_TRANSACTION_COLLECTION_ID} 
+      NEXT_APPWRITE_KEY: ${NEXT_APPWRITE_KEY}
+      PLAID_CLIENT_ID: ${PLAID_CLIENT_ID}
+      PLAID_SECRET: ${PLAID_SECRET}
+      PLAID_ENV: ${PLAID_ENV} 
+      PLAID_PRODUCTS: ${PLAID_PRODUCTS} 
+      PLAID_COUNTRY_CODES: ${PLAID_COUNTRY_CODES}
+      DWOLLA_KEY: ${DWOLLA_KEY}  
+      DWOLLA_SECRET: ${DWOLLA_SECRET}
+      DWOLLA_BASE_URL: ${DWOLLA_BASE_URL}
+      DWOLLA_ENV: ${DWOLLA_ENV} 
+    
+
