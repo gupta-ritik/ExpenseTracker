@@ -67,9 +67,9 @@ export const signIn = async ({ email, password }: signInProps) => {
 export const signUp = async (userData: SignUpParams) => {
   let newUserAccount;
   try {
-
     const { account, database } = await createAdminClient();
 
+    // Create a new user account
     newUserAccount = await account.create(
       ID.unique(),
       userData.email,
@@ -78,6 +78,7 @@ export const signUp = async (userData: SignUpParams) => {
     );
     if (!newUserAccount) throw new Error("Error creating user account");
 
+    // Create Dwolla customer
     const dwollaCustomerUrl = await createDwollaCustomer({
       ...userData,
       type: "personal",
@@ -86,6 +87,7 @@ export const signUp = async (userData: SignUpParams) => {
 
     const dwollaCustomerId = extractCustomerIdFromUrl(dwollaCustomerUrl);
 
+    // Create a document in the user collection with the new user data
     const newUser = await database.createDocument(
       DATABASE_ID!,
       USER_COLLECTION_ID!,
@@ -98,12 +100,13 @@ export const signUp = async (userData: SignUpParams) => {
       }
     );
 
+    // Create a session for the user
     const session = await account.createEmailPasswordSession(
       userData.email,
       userData.password
     );
 
-    // Store session token in cookies
+    // Store the session token in cookies
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -111,15 +114,18 @@ export const signUp = async (userData: SignUpParams) => {
       secure: true,
     });
 
-    // Return user data AND the session token
-    return parseStringify({
+    // Return a success message along with user data and token
+    return {
+      message: "User signed up successfully.",
       user: newUser,
-      token: session.secret, // Include the token in the response
-    });
+      token: session.secret, // Include the session token in the response
+    };
   } catch (err) {
     console.log(err);
+    throw new Error("Error during sign-up process.");
   }
 };
+
 
 export async function getLoggedInUser() {
   try {
