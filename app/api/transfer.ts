@@ -1,6 +1,6 @@
 import { transferFunds } from "@/lib/actions/transferFunds.actions";
 
-export default async function handler(req , res) {
+export default async function handler(req:Request , res:Request) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
