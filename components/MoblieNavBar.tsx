@@ -55,7 +55,7 @@ const MoblieNavBar = ({ user }: MobileNavProps) => {
                       <Link
                         href={link.route}
                         key={link.label}
-                        className={cn("moblienav-sheet_close w-full", {
+                        className={cn("moblienav-sheet_close w-full flex", {
                           "bg-bank-gradient": isActive,
                         })}
                       >
