@@ -23,6 +23,7 @@
     "lucide-react": "^0.395.0",
     "next": "14.2.4",
     "next-auth": "^4.24.8",
+    "nextjs-toploader": "^3.7.15",
     "node-appwrite": "^13.0.0",
     "plaid": "^26.0.0",
     "query-string": "^9.0.0",
