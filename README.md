@@ -80,6 +80,20 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
+## Running the Project Locally Using Docker
+
+You can also run DesignDeck locally using Docker by following these steps:
+
+1. Make sure you have Docker installed on your machine.
+
+2. To start the application using Docker, run the following command in your terminal:
+
+```bash
+docker-compose up --build
+```
+
+This command builds the image and starts the container. You can then access the application at `http://localhost:3000`. 
+
 
 ## 👨‍💻 Contributing
 
