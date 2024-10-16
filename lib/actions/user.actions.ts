@@ -37,15 +37,10 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
 
 export const signIn = async ({ email, password }: signInProps) => {
   try {
+    console.log("Hello");
     const { account } = await createAdminClient();
-
-
     const session = await account.createEmailPasswordSession(email, password);
 
- 
-    const user = await getUserInfo({ userId: session.userId });
-
-    // Store session token in cookies
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -53,23 +48,24 @@ export const signIn = async ({ email, password }: signInProps) => {
       secure: true,
     });
 
-    // Return user data AND the session token
-    return parseStringify({
-      user: user,
-      token: session.secret, 
-    });
+    const user = await getUserInfo({ userId: session.userId });
+
+    return parseStringify(user);
   } catch (error) {
-    console.error("Error during sign-in:", error);
-    return null; 
+    console.error("Error", error);
   }
 };
-
 export const signUp = async (userData: SignUpParams) => {
   try {
+    // Create a user account
     const { account, database } = await createAdminClient();
 
+<<<<<<< HEAD
     // Create a new user account
     const newUserAccount = await account.create(
+=======
+    newUserAccount = await account.create(
+>>>>>>> 2f1e3f9dfe89956fc1713778a9274b80307eaec0
       ID.unique(),
       userData.email,
       userData.password,
@@ -77,8 +73,6 @@ export const signUp = async (userData: SignUpParams) => {
     );
 
     if (!newUserAccount) throw new Error("Error creating user account");
-
-    // Create Dwolla customer
     const dwollaCustomerUrl = await createDwollaCustomer({
       ...userData,
       type: "personal",
@@ -88,7 +82,6 @@ export const signUp = async (userData: SignUpParams) => {
 
     const dwollaCustomerId = dwollaCustomerUrl.split("/").pop();
 
-    // Create a document in the user collection with the new user data
     const newUser = await database.createDocument(
       DATABASE_ID!,
       USER_COLLECTION_ID!,
@@ -100,14 +93,11 @@ export const signUp = async (userData: SignUpParams) => {
         dwollaCustomerUrl,
       }
     );
-
-    // Create a session for the user
     const session = await account.createEmailPasswordSession(
       userData.email,
       userData.password
     );
 
-    // Store the session token in cookies
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -126,8 +116,6 @@ export const signUp = async (userData: SignUpParams) => {
     throw new Error("Error during sign-up process.");
   }
 };
-
-
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
