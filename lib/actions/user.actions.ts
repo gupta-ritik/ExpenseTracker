@@ -60,17 +60,13 @@ export const signUp = async (userData: SignUpParams) => {
     // Create a user account
     const { account, database } = await createAdminClient();
 
-<<<<<<< HEAD
     // Create a new user account
     const newUserAccount = await account.create(
-=======
-    newUserAccount = await account.create(
->>>>>>> 2f1e3f9dfe89956fc1713778a9274b80307eaec0
       ID.unique(),
       userData.email,
       userData.password,
       `${userData.firstName} ${userData.lastName}`
-    );
+    )
 
     if (!newUserAccount) throw new Error("Error creating user account");
     const dwollaCustomerUrl = await createDwollaCustomer({
