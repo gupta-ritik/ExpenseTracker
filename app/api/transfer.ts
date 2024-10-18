@@ -1,38 +1,27 @@
-import { transferFunds } from "@/lib/actions/transferFunds.actions";
+import { NextRequest, NextResponse } from 'next/server';
+import { transferFunds } from '@/lib/actions/transferFunds.actions';
 
-export default async function handler(req , res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    // Get the current session to ensure the user is authenticated
-    const session = await getSession({req})
-
-    if (!session) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    const { recipientId, amount } = req.body;
-
-    if (!recipientId || !amount || amount <= 0) {
-      return res.status(400).json({ message: 'Invalid data' });
-    }
+    // Parse the request body
+    const { senderId, recipientId, amount } = await req.json();
 
     // Call the transfer logic
     const result = await transferFunds({
-      senderId: session.user.id,
+      senderId,
       recipientId,
       amount,
     });
 
+    // Handle errors from the transfer logic
     if (result.error) {
-      return res.status(400).json({ message: result.error });
+      return NextResponse.json({ message: result.error }, { status: 400 });
     }
 
-    return res.status(200).json(result);
+    // Success response
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    console.error("Error in transfer API:", error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error in transfer API:', error);
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
 }

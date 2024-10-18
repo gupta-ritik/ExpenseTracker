@@ -10,7 +10,7 @@ const {
   APPWRITE_TRANSACTION_COLLECTION_ID: TRANSACTION_COLLECTION_ID,
 } = process.env;
 
-export const transferFunds = async ({ senderId, recipientId, amount }) => {
+export const transferFunds = async ({ senderId, recipientId, amount }:any) => {
   try {
     const { database } = await createAdminClient();
 
@@ -52,6 +52,6 @@ export const transferFunds = async ({ senderId, recipientId, amount }) => {
     return parseStringify({ message: "Transfer successful" });
   } catch (error) {
     console.error("Error transferring funds:", error);
-    return { error: error.message };
+    return { error};
   }
 };

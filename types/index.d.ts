@@ -211,13 +211,7 @@ declare interface TotlaBalanceBoxProps {
 
 declare interface FooterProps {
   user: User;
-<<<<<<< HEAD
   type?: "mobile" | "desktop";
-=======
-
-  type: 'mobile' | 'desktop';
-
->>>>>>> 0b480ed277612dbe4ef77645da628f22eb9dcc27
 }
 
 declare interface RightSidebarProps {
