@@ -56,25 +56,27 @@ export const signIn = async ({ email, password }: signInProps) => {
   }
 };
 export const signUp = async (userData: SignUpParams) => {
-  let newUserAccount;
   try {
     // Create a user account
     const { account, database } = await createAdminClient();
 
-    newUserAccount = await account.create(
+    // Create a new user account
+    const newUserAccount = await account.create(
       ID.unique(),
       userData.email,
       userData.password,
       `${userData.firstName} ${userData.lastName}`
-    );
+    )
+
     if (!newUserAccount) throw new Error("Error creating user account");
     const dwollaCustomerUrl = await createDwollaCustomer({
       ...userData,
       type: "personal",
     });
+
     if (!dwollaCustomerUrl) throw new Error("Error creating Dwolla customer");
 
-    const dwollaCustomerId = extractCustomerIdFromUrl(dwollaCustomerUrl);
+    const dwollaCustomerId = dwollaCustomerUrl.split("/").pop();
 
     const newUser = await database.createDocument(
       DATABASE_ID!,
@@ -98,9 +100,16 @@ export const signUp = async (userData: SignUpParams) => {
       sameSite: "strict",
       secure: true,
     });
-    return parseStringify(newUser);
+
+    // Return a success message along with user data and token
+    return {
+      message: "User signed up successfully.",
+      user: newUser,
+      token: session.secret,
+    };
   } catch (err) {
-    console.log(err);
+    console.log("Sign-up error:", err);
+    throw new Error("Error during sign-up process.");
   }
 };
 export async function getLoggedInUser() {
