@@ -24,6 +24,7 @@ import { signIn, signUp } from "@/lib/actions/user.actions";
 import PlaidLink from "./PlaidLink";
 import { Models } from "node-appwrite";
 import { setCookie } from 'nookies';
+import { toast } from "react-toastify"; // Import react-toastify
 
 
 const AuthForm = ({ type }: { type: string }) => {
@@ -60,14 +61,19 @@ const AuthForm = ({ type }: { type: string }) => {
         };
 
         const newUser = await signUp(userData);
+
         if (newUser) {
-          setUser(newUser);
-          // Set cookie with JWT token
           setCookie(null, 'token', newUser.token, {
             maxAge: 30 * 24 * 60 * 60, // 30 days
             path: '/',
-            httpOnly: true, // Ensures cookie is not accessible via JavaScript
+            httpOnly: true,
           });
+
+          // Show a success toast message
+          toast.success("Signup successful! Welcome to Horizon!");
+
+          // Redirect to the "My Banks" page
+          router.push("/my-banks");
         }
       }
 
@@ -76,17 +82,24 @@ const AuthForm = ({ type }: { type: string }) => {
           email: data.email,
           password: data.password,
         });
+
         if (response) {
-          // Assuming the response returns the token
           setCookie(null, 'token', response.token, {
             maxAge: 30 * 24 * 60 * 60, // 30 days
             path: '/',
-            httpOnly: true, // Ensures cookie is not accessible via JavaScript
+            httpOnly: true,
           });
-          router.push("/");
+
+          // Show a success toast message
+          toast.success("Login successful! Redirecting to My Banks...");
+
+          // Redirect to the "My Banks" page
+          router.push("/my-banks");
         }
       }
     } catch (error) {
+      // Show an error toast message
+      toast.error("Error: Something went wrong. Please try again.");
       console.log(error);
     } finally {
       setIsLoading(false);
