@@ -3,25 +3,18 @@ import HeaderBox from "@/components/HeaderBox";
 import PaymentTransferForm from "@/components/PaymentTransferForm";
 import { getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
+import { redirect } from "next/navigation";
 import React, { useState } from "react";
 
-const Transfer = () => {
-  // const loggedIn = await getLoggedInUser();
+const Transfer = async  () => {
+  const loggedIn = await getLoggedInUser();
 
-  // Check if user is logged in
-  // if (!loggedIn) {
-  //   // Handle the case when no user is logged in
-  //   return (
-  //     <section className="payment-transfer">
-  //       <HeaderBox
-  //         title="Payment Transfer"
-  //         subtext="You need to be logged in to make a transfer"
-  //       />
-  //     </section>
-  //   );
-  // }
+  if (!loggedIn) {
+    // Redirect the user to the sign-up page if they are not logged in
+    redirect("/sign-up");  // This handles the redirection server-side
+  }
 
-  // const accountsData = accounts?.data;
+  const accountsData = accounts?.data;
 
   const [formData, setFormData] = useState({
     email: "",

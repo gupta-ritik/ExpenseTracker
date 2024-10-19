@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@/lib/actions/user.actions";
 import PlaidLink from "./PlaidLink";
 import { Models } from "node-appwrite";
+import { setCookie } from 'nookies';
 
 
 const AuthForm = ({ type }: { type: string }) => {
@@ -61,6 +62,12 @@ const AuthForm = ({ type }: { type: string }) => {
         const newUser = await signUp(userData);
         if (newUser) {
           setUser(newUser);
+          // Set cookie with JWT token
+          setCookie(null, 'token', newUser.token, {
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: '/',
+            httpOnly: true, // Ensures cookie is not accessible via JavaScript
+          });
         }
       }
 
@@ -69,7 +76,15 @@ const AuthForm = ({ type }: { type: string }) => {
           email: data.email,
           password: data.password,
         });
-        if (response) router.push("/");
+        if (response) {
+          // Assuming the response returns the token
+          setCookie(null, 'token', response.token, {
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: '/',
+            httpOnly: true, // Ensures cookie is not accessible via JavaScript
+          });
+          router.push("/");
+        }
       }
     } catch (error) {
       console.log(error);
