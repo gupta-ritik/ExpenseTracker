@@ -5,13 +5,13 @@ import RightSideBar from "@/components/RightSideBar";
 import TotalBalanceBox from "@/components/TotalBalanceBox";
 import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
+import { redirect } from "next/dist/server/api-utils";
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const loggedIn = await getLoggedInUser();
 
   if (!loggedIn) {
-    console.error("User is not logged in");
-    return; // or redirect to login page
+    redirect("/sign-up");
   }
 
   const accounts = await getAccounts({
