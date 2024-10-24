@@ -9,6 +9,7 @@ import React from "react";
 // import Footer from "./Footer";
 
 import Footer from "./Footer";
+import { Button } from "./ui/button";
 
 
 const SideBar = ({ user }: SiderbarProps) => {
@@ -58,7 +59,14 @@ const SideBar = ({ user }: SiderbarProps) => {
         })}
         {/* User  */}
       </nav>
-      <Footer user={user} />
+      {user ? (
+        <Footer user={user} />)
+        : (
+          <div className="flex flex-wrap row gap-3">
+            <Button><Link href='/sign-in'>Sign in</Link></Button>
+            <Button><Link href='/sign-up'>Sign up</Link></Button>
+          </div>
+        )}
     </section>
   );
 };
