@@ -303,3 +303,15 @@ export const getBankByAccountId = async ({
     console.log(error);
   }
 };
+export const sendPasswordResetEmail = async (email: string) => {
+  try {
+    const { account } = await createAdminClient();
+    await account.createRecovery(email, "http://localhost:3000/reset-password");
+    console.log("Password reset email sent!");
+  } catch (error) {
+    console.error("Failed to send password reset email:", error);
+  }
+};
+
+
+

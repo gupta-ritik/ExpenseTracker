@@ -7,15 +7,21 @@ import { authFormSchema } from "@/lib/utils";
 
 const formSchema = authFormSchema("sign-up");
 
-
-interface CustomInput {
+interface CustomInputProps {
   control: Control<z.infer<typeof formSchema>>;
   name: FieldPath<z.infer<typeof formSchema>>;
   label: string;
   placeholder: string;
+  inputType?: string; // Add this line
 }
 
-const CustomInput = ({ control, name, label, placeholder }: CustomInput) => {
+const CustomInput: React.FC<CustomInputProps> = ({
+  control,
+  name,
+  label,
+  placeholder,
+  inputType = "text", // Default to "text" if not provided
+}) => {
   return (
     <FormField
       control={control}
@@ -28,7 +34,7 @@ const CustomInput = ({ control, name, label, placeholder }: CustomInput) => {
               <Input
                 placeholder={placeholder}
                 className="input-class"
-                type={name === "password" ? "password" : "text"}
+                type={inputType} // Use inputType prop here
                 {...field}
               />
             </FormControl>
