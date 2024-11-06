@@ -2,11 +2,26 @@
 
 # 🌟 ExpenseTracker – Your Personal Finance Companion 💵
 
-
-![License](https://cdn.prod.website-files.com/5e0f1144930a8bc8aace526c/65dd9eb5aaca434fac4f1c34_License-MIT-blue.svg)
-![GitHub Issues](https://img.shields.io/github/issues/gupta-ritik/ExpenseTracker)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/gupta-ritik/ExpenseTracker)
-![Stars](https://img.shields.io/github/stars/gupta-ritik/ExpenseTracker)
+<table align="center">
+    <thead align="center">
+        <tr border="2px">
+            <td><b>🌟 Stars</b></td>
+            <td><b>🍴 Forks</b></td>
+            <td><b>🐛 Issues</b></td>
+            <td><b>🔔 Open PRs</b></td>
+            <td><b>🔕 Close PRs</b></td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><img alt="Stars" src="https://img.shields.io/github/stars/gupta-ritik/ExpenseTracker?style=flat&logo=github"/></td>
+            <td><img alt="Forks" src="https://img.shields.io/github/forks/gupta-ritik/ExpenseTracker?style=flat&logo=github"/></td>
+            <td><img alt="Issues" src="https://img.shields.io/github/issues/gupta-ritik/ExpenseTracker?style=flat&logo=github"/></td>
+            <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/gupta-ritik/ExpenseTracker?style=flat&logo=github"/></td>
+            <td><img alt="Close Pull Requests" src="https://img.shields.io/github/issues-pr-closed/gupta-ritik/ExpenseTracker?style=flat&color=critical&logo=github"/></td>
+        </tr>
+    </tbody>
+</table>
 
 ## 📋 Table of Contents
 - [Tech Stack](#-tech-stack)
@@ -96,6 +111,7 @@ This command builds the image and starts the container. You can then access the 
 
 
 ## 👨‍💻 Contributing
+ ![image](https://github.com/user-attachments/assets/5263dc32-ce09-4835-b964-7f996e970eb5)
 
 We welcome all contributions! If you'd like to contribute, follow these steps:
 
@@ -129,6 +145,10 @@ For major changes, please open an issue first to discuss your proposed changes.
 Please make sure to follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ---
+* Tip : Complete this process in GitHub ](in your browser)
+
+[![](https://mermaid.ink/img/pako:eNpFUMtywjAM_BWNzvADOfRQWk5th0mPCQfhKI_iB1XsYRjg35EdpvVBlrQrraQrmtAxVtjbcDYjSYSPuvWgbxvk2GQDcWQ4SfhhE_ewXr_AQcibsdkIU2Qg-OIzvJbcfqldCIX73k2xyQb6yfITL3FGTXBO8U35ipAO4Qeen8QFz9TbdvJk7eUGpsju6n_9XbIWav5NPEctxBU6FkdTp4tdc6MWtbXjFit1O5Jji62_K49SDN8Xb7CKkniFEtIwYtWTnTVKp04F3iYahNxflnX4IJ_L3cr57g_ewG4o?type=png)](https://mermaid.live/edit#pako:eNpFUMtywjAM_BWNzvADOfRQWk5th0mPCQfhKI_iB1XsYRjg35EdpvVBlrQrraQrmtAxVtjbcDYjSYSPuvWgbxvk2GQDcWQ4SfhhE_ewXr_AQcibsdkIU2Qg-OIzvJbcfqldCIX73k2xyQb6yfITL3FGTXBO8U35ipAO4Qeen8QFz9TbdvJk7eUGpsju6n_9XbIWav5NPEctxBU6FkdTp4tdc6MWtbXjFit1O5Jji62_K49SDN8Xb7CKkniFEtIwYtWTnTVKp04F3iYahNxflnX4IJ_L3cr57g_ewG4o)
+
 
 ## Our Valuable Contributors ❤️✨
 [![Contributors](https://contrib.rocks/image?repo=gupta-ritik/ExpenseTracker)]((https://github.com/gupta-ritik/ExpenseTracker/graphs/contributors))
