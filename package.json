@@ -36,6 +36,7 @@
     "next-auth": "^4.24.8",
     "nextjs-toploader": "^3.7.15",
     "node-appwrite": "^13.0.0",
+    "nookies": "^2.5.2",
     "plaid": "^26.0.0",
     "query-string": "^9.0.0",
     "react": "^18",

@@ -2,21 +2,14 @@ import BankCard from "@/components/BankCard";
 import HeaderBox from "@/components/HeaderBox";
 import { getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
+import { redirect } from "next/navigation"
 import React from "react";
 
 const MyBanks = async () => {
   const loggedIn = await getLoggedInUser();
  
   if (!loggedIn) {
-    // Handle the case when no user is logged in
-    return (
-      <section className="my-banks p-10 ">
-        <HeaderBox
-          title="My Banks"
-          subtext="You need to be logged in to view My Banks"
-        />
-      </section>
-    );
+    redirect("/sign-up")
   }
   
   const accounts = await getAccounts({
