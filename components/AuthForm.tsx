@@ -18,7 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import CustomInput from "./CommonField";
 import { authFormSchema } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+
+
+import { Loader2, Eye, EyeOff } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@/lib/actions/user.actions";
 import PlaidLink from "./PlaidLink";
@@ -32,7 +35,11 @@ const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState<null | { message: string; user: Models.Document; token: string }>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const formSchema = authFormSchema(type);
+
+  // 1. Define your form.
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -150,8 +157,41 @@ const AuthForm = ({ type }: { type: string }) => {
                   </div>
                 </>
               )}
-              <CustomInput control={form.control} name="email" label="Email" placeholder="Enter your email" />
-              <CustomInput control={form.control} name="password" label="Password" placeholder="Enter your password" />
+
+
+              <CustomInput
+                control={form.control}
+                name="email"
+                label="Email"
+                placeholder="Enter your email"
+              />
+
+              <div className="relative">
+                <CustomInput
+                  control={form.control}
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  inputType={showPassword ? "text" : "password"}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-3 right-0 pr-3 flex items-center justify-center h-full"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </button>
+              </div>
+
+              {type === "sign-in" && (
+                <div className="flex justify-end">
+                  <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
+              )}
+
+
               <div className="flex flex-col gap-4">
                 <Button type="submit" disabled={isLoading} className="form-btn">
                   {isLoading ? <><Loader2 size={20} className="animate-spin" /> &nbsp; Loading...</> : type === "sign-in" ? "Sign In" : "Sign Up"}
