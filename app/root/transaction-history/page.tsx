@@ -4,6 +4,7 @@ import TransactionsTable from "@/components/TransactionsTable";
 import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
 import { formatAmount } from "@/lib/utils";
+import { redirect } from "next/navigation";
 import React from "react";
 
 const TransactionHistory = async ({
@@ -16,14 +17,7 @@ const TransactionHistory = async ({
 
   // Check if the user is logged in
   if (!loggedIn) {
-    return (
-      <div className="transactions">
-        <HeaderBox
-          title="Transaction History"
-          subtext="You need to be logged in to view transaction history."
-        />
-      </div>
-    );
+    redirect("/sign-up")
   }
 
   // Fetch accounts using the logged-in user's ID
