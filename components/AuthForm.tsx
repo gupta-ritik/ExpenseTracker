@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-
+import { signIn } from "next-auth/react"; // Import signIn for OAuth
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import CustomInput from "./CommonField";
 import { authFormSchema } from "@/lib/utils";
-
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.actions";
@@ -28,13 +27,12 @@ import PlaidLink from "./PlaidLink";
 
 const AuthForm = ({ type }: { type: string }) => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = authFormSchema(type);
 
-  // 1. Define your form.
+  // 1. Define your form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,7 +41,7 @@ const AuthForm = ({ type }: { type: string }) => {
     },
   });
 
-  // 2. Define a submit handler.
+  // 2. Define a submit handler for standard sign-in/sign-up
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
@@ -72,8 +70,11 @@ const AuthForm = ({ type }: { type: string }) => {
         const response = await signIn({
           email: data.email,
           password: data.password,
+          redirect: false,
         });
-        if (response) router.push("/");
+        if (response?.ok) router.push("/");
+      } else {
+        // Handle sign-up logic here, or integrate with Appwrite or another back-end
       }
     } catch (error) {
       console.log(error);
@@ -106,6 +107,11 @@ const AuthForm = ({ type }: { type: string }) => {
                 : "Please enter your details"}
             </p>
           </h1>
+          <p className="text-16 font-normal text-gray-600">
+            {type === "sign-in"
+              ? "Please enter your details to sign in"
+              : "Please fill in your details to create an account"}
+          </p>
         </div>
       </header>
       {user ? (
