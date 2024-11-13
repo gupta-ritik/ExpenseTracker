@@ -3,38 +3,34 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-
+import { signIn as authSignIn } from "next-auth/react"; // Renamed for OAuth
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import CustomInput from "./CommonField";
 import { authFormSchema } from "@/lib/utils";
-
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.actions";
+import { signUp } from "@/lib/actions/user.actions";
 import PlaidLink from "./PlaidLink";
 
 const AuthForm = ({ type }: { type: string }) => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null); // New user state
 
   const formSchema = authFormSchema(type);
 
-  // 1. Define your form.
+  // Define your form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,13 +39,11 @@ const AuthForm = ({ type }: { type: string }) => {
     },
   });
 
-  // 2. Define a submit handler.
+  // Define a submit handler for standard sign-in/sign-up
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
     try {
-      // Sign up with Appwrite & create plaid token
-
       if (type === "sign-up") {
         const userData = {
           firstName: data.firstName!,
@@ -65,18 +59,19 @@ const AuthForm = ({ type }: { type: string }) => {
         };
 
         const newUser = await signUp(userData);
-        setUser(newUser);
+        setUser(newUser); // Set the new user
       }
 
       if (type === "sign-in") {
-        const response = await signIn({
+        const response = await authSignIn({
           email: data.email,
           password: data.password,
+          redirect: false,
         });
-        if (response) router.push("/");
+        if (response?.ok) router.push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error during authentication:", error);
     } finally {
       setIsLoading(false);
     }
@@ -100,12 +95,14 @@ const AuthForm = ({ type }: { type: string }) => {
         <div className="flex flex-col gap-1 md:gap-3">
           <h1 className="text-24 lg:text-36 font-semibold text-gray-900">
             {user ? "Link Account" : type === "sign-in" ? "Sign In" : "Sign Up"}
-            <p className="text-16 font-normal text-gray-600">
-              {user
-                ? "Link your account to get started"
-                : "Please enter your details"}
-            </p>
           </h1>
+          <p className="text-16 font-normal text-gray-600">
+            {user
+              ? "Link your account to get started"
+              : type === "sign-in"
+              ? "Please enter your details to sign in"
+              : "Please fill in your details to create an account"}
+          </p>
         </div>
       </header>
       {user ? (
@@ -129,7 +126,7 @@ const AuthForm = ({ type }: { type: string }) => {
                       control={form.control}
                       name="lastName"
                       label="Last Name"
-                      placeholder="Enter your first name"
+                      placeholder="Enter your last name"
                     />
                   </div>
                   <CustomInput
