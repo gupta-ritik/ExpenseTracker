@@ -297,10 +297,28 @@ export const getBankByAccountId = async ({
 export const sendPasswordResetEmail = async (email: string) => {
   try {
     const { account } = await createAdminClient();
-    await account.createRecovery(email, "http://localhost:3000/reset-password");
+    const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`;
+    await account.createRecovery(email, resetUrl);
     console.log("Password reset email sent!");
   } catch (error) {
     console.error("Failed to send password reset email:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (
+  userId: string,
+  secret: string,
+  password: string,
+  passwordConfirm: string
+) => {
+  try {
+    const { account } = await createAdminClient();
+    await account.updateRecovery(userId, secret, password, passwordConfirm);
+    console.log("Password reset successful!");
+  } catch (error) {
+    console.error("Failed to reset password:", error);
+    throw error;
   }
 };
 
