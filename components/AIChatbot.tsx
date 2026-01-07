@@ -63,7 +63,7 @@ export default function AIChatbot() {
       const data = await response.json();
 
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: data.message || 'I apologize, but I encountered an error. Please try again.',
         timestamp: new Date(),
@@ -72,7 +72,7 @@ export default function AIChatbot() {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again later.',
         timestamp: new Date(),
@@ -105,7 +105,12 @@ export default function AIChatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200">
+        <div 
+          className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200"
+          role="dialog"
+          aria-label="AI Expense Advisor Chatbot"
+          aria-modal="true"
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-blue-500 text-white rounded-t-lg">
             <div className="flex items-center gap-2">
@@ -174,9 +179,9 @@ export default function AIChatbot() {
                 </div>
                 <div className="bg-white text-gray-800 border border-gray-200 px-4 py-2 rounded-lg">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full motion-safe:animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full motion-safe:animate-bounce motion-safe:[animation-delay:0.1s]"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full motion-safe:animate-bounce motion-safe:[animation-delay:0.2s]"></div>
                   </div>
                 </div>
               </div>

@@ -54,6 +54,7 @@
  • 📝 **Transaction History:** Pagination and filtering options for viewing transactions across different banks.  
  • ⏱️ **Real-time Updates:** Immediate reflection of changes across all pages when connecting new bank accounts.  
  • 💸 **Funds Transfer:** Transfer funds using Dwolla to other accounts with necessary fields and recipient bank ID.  
+ • 🤖 **AI Chatbot:** Intelligent assistant providing personalized expense advice, spending pattern analysis, and savings optimization tips.  
  • 📱 **Responsiveness:** Seamless adaptation to various screen sizes, ensuring a consistent user experience across devices.
 
 ---
