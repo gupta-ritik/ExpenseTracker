@@ -47,7 +47,7 @@ const ResetPassword = () => {
 
         setIsLoading(true);
         try {
-            await resetPassword(userId, secret, data.password, data.passwordConfirm);
+            await resetPassword(userId, secret, data.password);
             alert("Password reset successful! You can now sign in with your new password.");
             router.push("/sign-in");
         } catch (error) {

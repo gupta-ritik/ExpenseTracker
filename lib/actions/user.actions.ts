@@ -309,12 +309,11 @@ export const sendPasswordResetEmail = async (email: string) => {
 export const resetPassword = async (
   userId: string,
   secret: string,
-  password: string,
-  passwordConfirm: string
+  password: string
 ) => {
   try {
     const { account } = await createAdminClient();
-    await account.updateRecovery(userId, secret, password, passwordConfirm);
+    await account.updateRecovery(userId, secret, password);
     console.log("Password reset successful!");
   } catch (error) {
     console.error("Failed to reset password:", error);
