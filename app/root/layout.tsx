@@ -1,5 +1,6 @@
 import MoblieNavBar from "@/components/MoblieNavBar";
 import SideBar from "@/components/SideBar";
+import AIChatbot from "@/components/AIChatbot";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
 import Image from "next/image";
 import React from "react";
@@ -28,6 +29,9 @@ export default async function RootLayout({
         </div>
         {children}
       </div>
+      
+      {/* AI Chatbot - Only show for logged in users */}
+      {loggedIn && <AIChatbot />}
     </main>
   );
 }
