@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Linking } from "react-native";
 import { useMutation } from "@tanstack/react-query";
 import { errorMessage } from "./api";
 import { bankSms, useSmsStatus } from "./bank-sms";
@@ -64,6 +65,11 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
               <Button onPress={() => setExplain(!explain)}>
                 SMS PERMISSIONS
               </Button>
+              {!explain && (
+                <Button onPress={() => run(() => Linking.openSettings())}>
+                  OPEN ANDROID APP SETTINGS
+                </Button>
+              )}
               {explain && (
                 <Card>
                   <Label>{"// BEFORE YOU ENABLE SMS"}</Label>
@@ -74,16 +80,23 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                   </Label>
                   <Label>
                     Verification messages are discarded. Account and card
-                    numbers are masked, and phone numbers, PAN and other
-                    identifiers are removed. Payment references are kept for
-                    duplicate detection.
+                    numbers are masked to their last four digits, and phone
+                    numbers, PAN and other identifiers are removed. Payment
+                    references are kept for duplicate detection.
                   </Label>
                   <Label>
-                    Only masked alerts are queued on this phone and sent to the
-                    Expense Tracker server. The server stores parsed
-                    transactions. You can clear the queue and revoke access in
-                    Android settings or revoke the device in Expense Tracker
-                    Settings.
+                    Only masked alerts, sender IDs and timestamps are queued on
+                    this phone and sent to the ExpenseTracker server. The server
+                    stores parsed transactions. Your device credential is
+                    encrypted on Android. Alerts leave the queue after
+                    successful delivery.
+                  </Label>
+                  <Label>
+                    Revoke SMS access in Android app settings to stop capture
+                    and inbox access. Revoke the device in ExpenseTracker
+                    Settings to stop delivery. Clear queue deletes pending
+                    alerts. You can delete imported transactions in
+                    ExpenseTracker.
                   </Label>
                   <Button
                     selected
