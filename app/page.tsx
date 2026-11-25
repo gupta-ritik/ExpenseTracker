@@ -11,24 +11,24 @@ const features = [
 export default function Home() {
   return <div className="landing">
     <header className="landing-nav wrap">
-      <Link href="/" className="brand"><span aria-hidden>?</span> ExpenseTracker</Link>
+      <Link href="/" className="brand"><span aria-hidden>₹</span> ExpenseTracker</Link>
       <Link href="/sign-in" className="button">Sign in</Link>
     </header>
     <main id="main">
       <section className="hero" data-enter>
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <p className="section-label mono">// PERSONAL FINANCE ? INDIA</p>
+            <p className="section-label mono">{"// PERSONAL FINANCE · INDIA"}</p>
             <h1>Track your expenses in rupees.</h1>
-            <p>Log everyday spending, import your bank statement, and see what you have left in this month?s budget.</p>
+            <p>Log everyday spending, import your bank statement, and see what you have left in this month’s budget.</p>
             <Link href="/sign-up" className="button primary">Start free <ArrowRight size={20} aria-hidden /></Link>
           </div>
           <div className="app-frame panel" aria-label="Example monthly overview">
-            <div className="frame-title row spread"><span className="mono">// THIS MONTH</span><span className="mono">INR</span></div>
-            <div className="frame-total"><span className="mono">TOTAL BALANCE</span><strong className="money">?47,280.50</strong></div>
+            <div className="frame-title row spread"><span className="mono">{"// THIS MONTH"}</span><span className="mono">INR</span></div>
+            <div className="frame-total"><span className="mono">TOTAL BALANCE</span><strong className="money">₹47,280.50</strong></div>
             <div className="frame-metrics">
-              <div><span className="mono">SPENDING</span><strong className="money text-expense">?18,420.00</strong></div>
-              <div><span className="mono">INCOME</span><strong className="money text-income">?65,700.50</strong></div>
+              <div><span className="mono">SPENDING</span><strong className="money text-expense">₹18,420.00</strong></div>
+              <div><span className="mono">INCOME</span><strong className="money text-income">₹65,700.50</strong></div>
             </div>
             <div className="frame-budget"><div className="row spread"><strong>Groceries</strong><span className="mono">64%</span></div>
               <progress value={64} max={100} aria-label="Example groceries budget used" /></div>
@@ -45,6 +45,6 @@ export default function Home() {
         </div>
       </section>
     </main>
-    <footer className="wrap landing-footer"><span className="brand"><span aria-hidden>?</span> ExpenseTracker</span><Link href="/sign-up">Start free <ArrowRight size={18} aria-hidden /></Link></footer>
+    <footer className="wrap landing-footer"><span className="brand"><span aria-hidden>₹</span> ExpenseTracker</span><Link href="/sign-up">Start free <ArrowRight size={18} aria-hidden /></Link></footer>
   </div>;
 }
