@@ -46,7 +46,8 @@
     "react-is": "^19.0.0",
     "recharts": "^3.11.1",
     "unpdf": "^2.2.2",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@expense-tracker/shared": "0.1.0"
   },
   "devDependencies": {
     "@cantoo/pdf-lib": "^2.11.1",
@@ -80,5 +81,9 @@
       "eslint --fix"
     ],
     "*.{css,json,md}": "prettier --write"
-  }
+  },
+  "workspaces": [
+    "packages/*",
+    "mobile"
+  ]
 }
