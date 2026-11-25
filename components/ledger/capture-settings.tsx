@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNowStrict } from "date-fns";
 import {
@@ -297,6 +297,9 @@ export function TokenSettings({
   const { busy, run, feedback } = useAction();
   const [name, setName] = useState("");
   const [created, setCreated] = useState<string>();
+  // Local copy so creates and revokes show immediately; server props re-sync it.
+  const [items, setItems] = useState(tokens);
+  useEffect(() => setItems(tokens), [tokens]);
   return (
     <div className="stack">
       <p className="hint">
@@ -314,6 +317,23 @@ export function TokenSettings({
           if (result && typeof result.token === "string") {
             setCreated(result.token);
             setName("");
+            const added = result as unknown as {
+              id: string;
+              name: string;
+              createdAt: Date;
+            };
+            setItems((previous) => [
+              {
+                id: added.id,
+                name: added.name,
+                kind: "manual",
+                deviceInfo: null,
+                lastUsedAt: null,
+                revokedAt: null,
+                createdAt: new Date(added.createdAt),
+              },
+              ...previous.filter((item) => item.id !== added.id),
+            ]);
           }
         }}
       >
@@ -336,9 +356,9 @@ export function TokenSettings({
         </p>
       )}
       {feedback}
-      {tokens.length ? (
+      {items.length ? (
         <ul className="rule-list">
-          {tokens.map((token) => (
+          {items.map((token) => (
             <li key={token.id} className="row spread wrap-row">
               <span>
                 <strong>{token.name}</strong>{" "}
@@ -370,12 +390,20 @@ export function TokenSettings({
                   type="button"
                   className="button ghost"
                   disabled={busy}
-                  onClick={() =>
-                    void run(
+                  onClick={async () => {
+                    const result = await run(
                       () => revokeToken(token.id),
                       () => `${token.name} revoked.`,
-                    )
-                  }
+                    );
+                    if (result && !result.error)
+                      setItems((previous) =>
+                        previous.map((item) =>
+                          item.id === token.id
+                            ? { ...item, revokedAt: new Date() }
+                            : item,
+                        ),
+                      );
+                  }}
                 >
                   Revoke
                 </button>

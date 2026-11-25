@@ -127,7 +127,12 @@ export async function createToken(name: unknown) {
     return { error: "Name the token, for example “Pixel forwarder”." } as const;
   const token = await createIngestToken(userId, parsed.data);
   revalidatePath("/settings");
-  return { token: token.token, name: token.name } as const;
+  return {
+    id: token.id,
+    token: token.token,
+    name: token.name,
+    createdAt: token.createdAt,
+  } as const;
 }
 
 export async function revokeToken(id: string) {
