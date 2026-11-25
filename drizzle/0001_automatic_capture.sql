@@ -149,4 +149,5 @@ CREATE INDEX "rate_limits_windowStart_index" ON "rate_limits" USING btree ("wind
 CREATE INDEX "transactions_userId_status_index" ON "transactions" USING btree ("userId","status");--> statement-breakpoint
 CREATE INDEX "transactions_userId_refNo_index" ON "transactions" USING btree ("userId","refNo");--> statement-breakpoint
 ALTER TABLE "accounts" ADD CONSTRAINT "account_last4_format" CHECK ("accounts"."last4" ~ '^[0-9]{4}$');--> statement-breakpoint
-ALTER TABLE "transactions" ADD CONSTRAINT "transaction_confidence_range" CHECK ("transactions"."confidence" between 0 and 100);
+ALTER TABLE "transactions" ADD CONSTRAINT "transaction_confidence_range" CHECK ("transactions"."confidence" between 0 and 100);--> statement-breakpoint
+ALTER TABLE "user_preferences" ADD COLUMN "smsSenders" text[];

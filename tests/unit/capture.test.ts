@@ -46,6 +46,7 @@ describe("mask", () => {
     ["Card 4111111111111234 used", "Card ****1234 used"],
     ["Number 4111111111111234 used", "Number [NUMBER] used"],
     ["Investor Name: A Person\nFolio 1", "[PERSONAL DETAILS]\nFolio 1"],
+    ["POS 412345XXXXXX5678 HPCL", "POS ****5678 HPCL"],
   ])("%s", (input, output) => expect(maskCaptureText(input)).toBe(output));
 
   it("keeps labelled payment references, which are needed for dedupe", () => {

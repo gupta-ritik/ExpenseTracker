@@ -9,6 +9,8 @@ import { db } from "../db";
 import { candidateImports } from "../db/queries/import";
 import { accounts, categories, importJobs, transactions } from "../db/schema";
 import { bankPresets, importFingerprint, parseStatement } from "./csv";
+import { alertReference } from "../capture/alerts";
+import { duplicateCandidates, isDuplicate } from "../capture/dedupe";
 
 const column = z.number().int().min(0).max(100).optional();
 const importInput = z.object({
@@ -69,9 +71,27 @@ async function plan(userId: string, raw: unknown) {
     ),
   );
   const hashes = new Set(previousImports.map((row) => row.hash));
+  // Rows captured from SMS, email or PDF: match on reference, or amount, date ±1 day and merchant.
+  const asCapture = (row: (typeof entries)[number]) => ({
+    type: row.type,
+    amountPaise: row.amountPaise,
+    date: row.date,
+    merchant: row.note,
+    refNo: alertReference(row.note),
+  });
+  const captured = await duplicateCandidates(
+    db(),
+    userId,
+    entries.map(asCapture),
+  );
   return {
     entries: entries.map((row) => {
-      const duplicate = existing.has(row.fingerprint) || hashes.has(row.hash);
+      const duplicate =
+        existing.has(row.fingerprint) ||
+        hashes.has(row.hash) ||
+        captured.some(
+          (item) => item.merchant !== "" && isDuplicate(asCapture(row), item),
+        );
       existing.add(row.fingerprint);
       return { ...row, duplicate };
     }),

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "event_id": "5d8ee1a5-9360-4b0e-8412-942b2e1c99ab",
+  "device_id": "43b55766-95b6-40b8-8f4f-c0240f547914",
+  "device_code": "test-phone",
+  "message_type": "sms",
+  "occurred_at": "2026-11-25T07:30:00Z",
+  "source": "android",
+  "channel_id": "sms",
+  "sender": "AD-HDFCBK",
+  "text": "Spent Rs.2,350.00 On HDFC Bank Card 5678 At FLIPKART On 2026-11-23:14:22:10 Bal Rs.45,000.00 Not You? Call 18002586161"
+}

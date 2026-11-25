@@ -981,3 +981,31 @@ kbd {
 .feature-preview .money {
   white-space: normal;
 }
+
+/* Automatic capture additions: reuse the existing tokens only. */
+.metrics {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+@media (max-width: 1000px) {
+  .metrics {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .metrics > .metric:first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+.entry-row[aria-current="true"] {
+  outline: 3px solid var(--fg);
+  outline-offset: -3px;
+}
+.segments[role="tablist"] button[aria-selected="true"],
+.segments[role="group"] button[aria-pressed="true"] {
+  font-weight: 900;
+}
+.segments[role="tablist"] button[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--ink);
+}

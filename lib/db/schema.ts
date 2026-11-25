@@ -260,6 +260,8 @@ export const userPreferences = pgTable("user_preferences", {
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
   currency: currency().notNull().default("INR"),
+  // Bank SMS sender IDs synced to the mobile app. Null means the built-in list.
+  smsSenders: text().array(),
 });
 
 export const merchantRules = pgTable(

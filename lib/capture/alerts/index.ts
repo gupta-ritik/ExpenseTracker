@@ -74,7 +74,7 @@ const credit =
 const debit =
   /\b(?:debited|debit(?:\s+of)?|spent|charged|paid|sent|withdrawn|withdrawal|deducted|purchased|transferred)\b/i;
 const references = [
-  /\b(?:UTR|RRN|(?:UPI\s+)?REF(?:ERENCE)?|TXN\.?|TRXN\.?|TRANSACTION)\.?\s*(?:NO\.?|NUMBER|ID)?[\s:#.-]+([A-Z0-9][A-Z0-9-]{5,31})\b/i,
+  /\b(?:UTR|RRN|(?:UPI\s+)?REF(?:ERENCE)?|TXN\.?|TRXN\.?|TRANSACTION)\.?\s*(?:NO\.?|NUMBER|ID)?(?:\s+IS)?[\s:#.-]+([A-Z0-9][A-Z0-9-]{5,31})\b/gi,
   /\bUPI[:/-]\s*(?:P2[AM]\/)?(\d{12})\b/i,
   /\b(?:NEFT|IMPS|RTGS)[/-](?:CR-|DR-)?([A-Z]{4}[A-Z0-9]{8,18})\b/i,
 ];
@@ -167,8 +167,13 @@ export function ignoredAlert(text: string) {
 
 export function alertReference(text: string) {
   for (const pattern of references) {
-    const found = text.match(pattern)?.[1]?.toUpperCase();
-    if (found && /\d/.test(found)) return found;
+    const matches = pattern.global
+      ? [...text.matchAll(pattern)]
+      : [pattern.exec(text)];
+    const found = matches
+      .map((match) => match?.[1]?.toUpperCase())
+      .find((value) => value && /\d/.test(value));
+    if (found) return found;
   }
   return undefined;
 }

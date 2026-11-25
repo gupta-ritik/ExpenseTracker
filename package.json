@@ -17,7 +17,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
     "db:test:migrate": "tsx scripts/migrate-test.ts",
-    "db:backfill-categories": "tsx scripts/backfill-categories.ts"
+    "db:backfill-categories": "tsx scripts/backfill-categories.ts",
+    "fixtures:pdf": "tsx scripts/make-pdf-fixtures.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.28",

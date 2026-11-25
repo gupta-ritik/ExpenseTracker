@@ -50,7 +50,7 @@ function dayGap(a: string, b: string) {
 export function isDuplicate(row: DedupeRow, existing: ExistingRow) {
   const ref = row.refNo?.toUpperCase();
   const otherRef = existing.refNo?.toUpperCase();
-  if (ref && otherRef) return ref === otherRef;
+  if (ref && otherRef) return sameReference(ref, otherRef);
   if (ref && ref.length >= 6 && existing.note.toUpperCase().includes(ref))
     return true;
   if (
@@ -123,4 +123,20 @@ export async function duplicateCandidates(
   return found.flatMap((row) =>
     row.type === "transfer" ? [] : [{ ...row, type: row.type }],
   );
+}
+
+/** Banks pad or prefix the same reference differently (0000433112345678 vs 433112345678). */
+export function sameReference(a: string, b: string) {
+  const left = a
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .replace(/^0+/, "");
+  const right = b
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .replace(/^0+/, "");
+  if (left === right) return true;
+  const [short, long] =
+    left.length <= right.length ? [left, right] : [right, left];
+  return short.length >= 10 && long.endsWith(short);
 }
