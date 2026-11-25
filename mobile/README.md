@@ -1,0 +1,23 @@
+# Expense Tracker for Android
+
+Install the root npm workspace with `npm ci`. Install JDK 17, Android SDK command-line tools, Platform-Tools, the Emulator, Android SDK Platform 37 and Build-Tools 37.0.0. Accept the Android SDK licenses and create an AVD with Google APIs. Point `JAVA_HOME` and `ANDROID_HOME` at the installations and put `platform-tools` and `emulator` on PATH.
+
+From this directory:
+
+```sh
+npx expo prebuild --platform android
+npx expo run:android
+```
+
+Use this development build for SMS capture. Start Metro for an installed development build with `npm run start`. For a local web backend, set `EXPENSE_TRACKER_DEV_API_URL` before prebuild and Metro, for example `http://10.0.2.2:3000` for the emulator. Set the local web server’s `BETTER_AUTH_URL` to that same address and use the isolated Neon test branch for verification. A physical development device can use the host’s LAN IP. The default API URL is `https://expense-tracker-stmh.vercel.app`, which needs the Part A deployment before it serves the mobile routes.
+
+## APK builds
+
+Build and install a release variant locally with `npx expo run:android --variant release`. Expo generates the Android project here. CI produces the distributable APK when a tag such as `android-v0.1.0` matches the version in `mobile/package.json`. Configure these GitHub Actions repository secrets before creating the tag:
+
+- `ANDROID_KEYSTORE_BASE64` contains the base64-encoded release keystore.
+- `ANDROID_KEYSTORE_PASSWORD` unlocks the keystore.
+- `ANDROID_KEY_ALIAS` names the signing key.
+- `ANDROID_KEY_PASSWORD` unlocks the signing key.
+
+Keep the original keystore and credentials securely offline for upgrades. The release workflow verifies the APK certificate and attaches the APK to the matching GitHub Release. A local release variant uses a development signature unless you supply the four signing environment variables used by Gradle, including `ANDROID_KEYSTORE_PATH` in place of `ANDROID_KEYSTORE_BASE64`.

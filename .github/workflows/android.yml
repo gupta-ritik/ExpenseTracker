@@ -1,0 +1,96 @@
+name: Android
+
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - 'packages/shared/**'
+      - 'tests/fixtures/alerts/**'
+      - 'package*.json'
+      - '.github/workflows/android.yml'
+    tags: ['android-v*']
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'packages/shared/**'
+      - 'tests/fixtures/alerts/**'
+      - 'package*.json'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npm run typecheck -w @expense-tracker/mobile
+      - run: npm test -w @expense-tracker/mobile
+      - run: sdkmanager 'platforms;android-37' 'build-tools;37.0.0'
+      - run: npx expo prebuild --platform android --no-install
+        working-directory: mobile
+      - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleDebug
+        working-directory: mobile/android
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/android-v')
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: sdkmanager 'platforms;android-37' 'build-tools;37.0.0'
+      - run: npx expo prebuild --platform android --no-install
+        working-directory: mobile
+      - name: Sign and verify the APK
+        working-directory: mobile
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          test "$GITHUB_REF_NAME" = "android-v$version"
+          : "${ANDROID_KEYSTORE_BASE64:?Set ANDROID_KEYSTORE_BASE64}" "${ANDROID_KEYSTORE_PASSWORD:?Set ANDROID_KEYSTORE_PASSWORD}" "${ANDROID_KEY_ALIAS:?Set ANDROID_KEY_ALIAS}" "${ANDROID_KEY_PASSWORD:?Set ANDROID_KEY_PASSWORD}"
+          umask 077
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/expense-tracker.keystore"
+          trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          (cd android && ./gradlew --no-daemon :app:assembleRelease)
+          apk="android/app/build/outputs/apk/release/app-release.apk"
+          expected=$(keytool -exportcert -alias "$ANDROID_KEY_ALIAS" -keystore "$ANDROID_KEYSTORE_PATH" -storepass:env ANDROID_KEYSTORE_PASSWORD | sha256sum | cut -d' ' -f1)
+          actual=$("$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs "$apk" | awk '/Signer #1 certificate SHA-256 digest/ {print $NF}')
+          test -n "$actual" && test "$actual" = "$expected"
+          cp "$apk" "$RUNNER_TEMP/expense-tracker-$version.apk"
+      - name: Upload the signed APK to the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk="$RUNNER_TEMP/expense-tracker-${GITHUB_REF_NAME#android-v}.apk"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$apk"
+          else
+            gh release create "$GITHUB_REF_NAME" "$apk" --verify-tag --title "Android ${GITHUB_REF_NAME#android-v}" --generate-notes
+          fi

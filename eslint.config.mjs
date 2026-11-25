@@ -21,7 +21,7 @@ const config = [
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    files: ["mobile/*.config.js"],
+    files: ["mobile/*.config.js", "mobile/plugins/*.js"],
     rules: { "@typescript-eslint/no-require-imports": "off" },
   },
 ];
