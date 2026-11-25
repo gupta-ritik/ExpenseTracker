@@ -12,7 +12,7 @@ export function databasePool() {
       connectionTimeoutMillis: 10_000,
       idleTimeoutMillis: 5_000,
     });
-    attachDatabasePool(pool);
+    if (process.env.VERCEL === "1") attachDatabasePool(pool);
   }
   return pool;
 }

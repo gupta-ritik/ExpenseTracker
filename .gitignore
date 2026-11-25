@@ -37,3 +37,6 @@ yarn-error.log*
 next-env.d.ts
 
 .neon
+/playwright-report/
+/test-results/
+/.taste-skill/

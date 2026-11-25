@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: http://localhost:3100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Configure isolated integration database
+        if: env.DATABASE_URL != '' && env.DATABASE_URL_UNPOOLED != ''
+        run: |
+          printf 'DATABASE_URL=%s\nDATABASE_URL_UNPOOLED=%s\nBETTER_AUTH_SECRET=%s\nBETTER_AUTH_URL=%s\n' "$DATABASE_URL" "$DATABASE_URL_UNPOOLED" "$BETTER_AUTH_SECRET" "$BETTER_AUTH_URL" > .env.test
+          npm run db:test:migrate
+      - run: npm test
+      - run: npm run build
