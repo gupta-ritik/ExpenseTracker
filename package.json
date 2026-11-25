@@ -87,7 +87,7 @@
     "mobile"
   ],
   "overrides": {
-    "react-native-css": {
+    "@expo/metro-config": {
       "lightningcss": "1.30.1"
     }
   }
