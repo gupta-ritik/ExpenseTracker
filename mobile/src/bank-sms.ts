@@ -13,6 +13,7 @@ export type SmsStatus = {
   revoked: boolean;
   deviceId: string | null;
   ownerId: string | null;
+  baseUrl: string | null;
   senders: string[];
   lastError: string | null;
 };
@@ -47,10 +48,11 @@ let registration: Promise<void> | undefined;
 export function registerDevice(owner: string) {
   registration ??= (async () => {
     const state = await bankSms.getStatus();
-    if (state.ownerId && state.ownerId !== owner) await bankSms.disconnect();
+    const sameAccount = state.ownerId === owner && state.baseUrl === apiBaseUrl;
+    if (state.ownerId && !sameAccount) await bankSms.disconnect();
     const { items } = await api<{ items: string[] }>("/sms/senders");
     await bankSms.setSenderList(items);
-    if (state.ownerId === owner && state.deviceId && !state.revoked) return;
+    if (sameAccount && state.deviceId && !state.revoked) return;
     const device = await api<{ id: string; token: string }>(
       "/devices/register",
       "POST",

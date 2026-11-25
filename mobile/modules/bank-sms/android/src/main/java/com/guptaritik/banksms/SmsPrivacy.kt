@@ -36,7 +36,7 @@ internal object SmsPrivacy {
 
     fun allowed(sender: String, senders: List<String>): Boolean {
         val component = senderComponent(sender)
-        return senderId.matches(component) && senders.any { it.uppercase(Locale.ROOT).removePrefix("*-") == component }
+        return senderId.matches(component) && component.any { it in 'A'..'Z' } && senders.any { it.uppercase(Locale.ROOT).removePrefix("*-") == component }
     }
 
     fun clean(sender: String, text: String, senders: List<String>): String? {

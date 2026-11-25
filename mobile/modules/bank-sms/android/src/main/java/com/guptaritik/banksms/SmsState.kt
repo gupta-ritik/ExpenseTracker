@@ -27,6 +27,7 @@ internal class SmsState(private val context: Context) {
     val outbox = Outbox(context)
     val owner get() = metadata.getString("owner", null)
     val id get() = metadata.getString("id", null)
+    val baseUrl get() = metadata.getString("baseUrl", null)
     val revoked get() = metadata.getBoolean("revoked", false)
     val lastSent get() = metadata.getLong("lastSent", 0L).takeIf { it != 0L }
     val lastError get() = metadata.getString("lastError", null)
@@ -36,7 +37,7 @@ internal class SmsState(private val context: Context) {
         if (revoked) return null
         val owner = owner ?: return null
         val id = id ?: return null
-        val baseUrl = metadata.getString("baseUrl", null) ?: return null
+        val baseUrl = baseUrl ?: return null
         val token = vault.getString(id, null) ?: return null
         return Credentials(owner, id, token, baseUrl)
     }

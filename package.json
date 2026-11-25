@@ -85,5 +85,10 @@
   "workspaces": [
     "packages/*",
     "mobile"
-  ]
+  ],
+  "overrides": {
+    "react-native-css": {
+      "lightningcss": "1.30.1"
+    }
+  }
 }

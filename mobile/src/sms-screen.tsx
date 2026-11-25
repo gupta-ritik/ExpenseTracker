@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Linking } from "react-native";
 import { useMutation } from "@tanstack/react-query";
+import { isSenderAllowed } from "@expense-tracker/shared/alerts";
 import { errorMessage } from "./api";
 import { bankSms, useSmsStatus } from "./bank-sms";
 import { Button, Card, Field, Label, Row, State, Title } from "./ui";
@@ -218,7 +219,9 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                 disabled={!connected || !body.trim() || !sender.trim()}
                 onPress={() =>
                   run(async () => {
-                    const accepted = await bankSms.pasteSms(sender, body);
+                    const accepted =
+                      isSenderAllowed(sender, data.senders) &&
+                      (await bankSms.pasteSms(sender, body));
                     if (accepted) setBody("");
                     setFeedback(
                       accepted

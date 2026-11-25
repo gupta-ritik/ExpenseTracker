@@ -10,6 +10,7 @@ import {
   View,
   useColorScheme,
   type TextInputProps,
+  type PressableProps,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -56,18 +57,20 @@ export function Button({
   selected,
   disabled,
   label,
+  ...actionProps
 }: {
   children: ReactNode;
   onPress: () => void;
   selected?: boolean;
   disabled?: boolean;
   label?: string;
-}) {
+} & Pick<PressableProps, "accessibilityActions" | "onAccessibilityAction">) {
   const { bg, fg } = usePalette();
   return (
     <View style={styles.offset}>
       <View style={[styles.shadow, { backgroundColor: fg }]} />
       <Pressable
+        {...actionProps}
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ disabled, selected }}

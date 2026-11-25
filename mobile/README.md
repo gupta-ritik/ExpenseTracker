@@ -21,3 +21,9 @@ Build and install a release variant locally with `npx expo run:android --variant
 - `ANDROID_KEY_PASSWORD` unlocks the signing key.
 
 Keep the original keystore and credentials securely offline for upgrades. The release workflow verifies the APK certificate and attaches the APK to the matching GitHub Release. A local release variant uses a development signature unless you supply the four signing environment variables used by Gradle, including `ANDROID_KEYSTORE_PATH` in place of `ANDROID_KEYSTORE_BASE64`.
+
+## Emulator SMS test
+
+Start an Android 35 Google APIs AVD, finish Expo prebuild, then run `node scripts/test-sms-emulator.cjs` from this directory. The harness runs the Android instrumentation suite, injects the shared synthetic HDFC alert, and checks the masked request at a loopback mock server. It also verifies retry after a 503 and queue retention after a 401. When the emulator rejects an alphanumeric sender in its text command, the harness sends an SMS PDU through the same modem.
+
+For background verification, dismiss the app from Recents or use `adb shell am kill com.guptaritik.expensetracker` once it is backgrounded. Android suspends broadcasts after a Settings force stop until the app is launched again.

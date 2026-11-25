@@ -38,10 +38,12 @@ export function EntryLine({
   item,
   currency,
   open,
+  remove,
 }: {
   item: Transaction;
   currency: Currency;
   open?: () => void;
+  remove?: () => void;
 }) {
   const description = item.merchant || item.note || item.type;
   const source = ["sms", "email", "pdf", "cas"].includes(item.source)
@@ -51,7 +53,16 @@ export function EntryLine({
   const text =
     description + " · " + formatMoney(amount, currency) + " [" + source + "]";
   return open ? (
-    <Button label={"Edit " + text} onPress={open}>
+    <Button
+      label={"Edit " + text}
+      onPress={open}
+      accessibilityActions={
+        remove ? [{ name: "delete", label: "Delete transaction" }] : undefined
+      }
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === "delete") remove?.();
+      }}
+    >
       {text}
     </Button>
   ) : (
@@ -226,25 +237,14 @@ export function Transactions({
               </Button>
             )}
           >
-            <View
-              accessible={false}
-              accessibilityActions={[
-                { name: "delete", label: "Delete transaction" },
-              ]}
-              onAccessibilityAction={(event) => {
-                if (
-                  event.nativeEvent.actionName === "delete" &&
-                  !remove.isPending
-                )
-                  remove.mutate(item.id);
-              }}
-            >
-              <EntryLine
-                item={item}
-                currency={currency}
-                open={() => edit(item.id)}
-              />
-            </View>
+            <EntryLine
+              item={item}
+              currency={currency}
+              open={() => edit(item.id)}
+              remove={
+                remove.isPending ? undefined : () => remove.mutate(item.id)
+              }
+            />
           </Swipeable>
         </View>
       ))}

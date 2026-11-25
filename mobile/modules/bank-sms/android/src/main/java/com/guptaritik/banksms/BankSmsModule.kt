@@ -73,7 +73,7 @@ class BankSmsModule : Module() {
             "batteryOptimized" to !power.isIgnoringBatteryOptimizations(context.packageName),
             "queueSize" to (state.owner?.let(state.outbox::count) ?: 0),
             "lastSent" to state.lastSent, "revoked" to state.revoked, "deviceId" to state.id,
-            "ownerId" to state.owner, "senders" to state.senders, "lastError" to state.lastError
+            "ownerId" to state.owner, "baseUrl" to state.baseUrl, "senders" to state.senders, "lastError" to state.lastError
         )
     }
 
