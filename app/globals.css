@@ -1,4 +1,4 @@
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --paper: #f2efe6;

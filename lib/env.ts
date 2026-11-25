@@ -45,3 +45,9 @@ export function migrationDatabaseUrl() {
 export function authEnvironment() {
   return parse(authSchema, process.env);
 }
+
+export function verifiedTlsUrl(connectionString: string) {
+  const url = new URL(connectionString);
+  url.searchParams.set("sslmode", "verify-full");
+  return url.href;
+}
