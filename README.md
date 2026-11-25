@@ -96,10 +96,52 @@ Run `npm run db:migrate` against the direct URL before serving production traffi
 
 Generate the cron secret and encryption key independently, for example by running `openssl rand -base64 32` twice. Keep production and test databases separate. Store capture secrets in the hosting environment or in ignored local environment files.
 
+Groq models were chosen from `GET https://api.groq.com/openai/v1/models` on 2026-11-25: `openai/gpt-oss-20b` (fast, JSON output) for alerts and `openai/gpt-oss-120b` for statement and CAS pages.
+
+## Automatic capture
+
+Every source goes through one pipeline in `lib/capture/`: parse, mask, categorize, dedupe, insert in one database transaction, and record an import job. Regex templates handle SBI, HDFC, ICICI, Axis, Kotak, Google Pay, PhonePe and Paytm alerts with confidence 95. Unknown formats from bank senders go to Groq when `GROQ_API_KEY` is set, capped at confidence 70, so they always land in **Review**. OTPs, promotions, reminders, failed payments and balance-only alerts are ignored.
+
+Masking runs before anything reaches Groq or the database. Account and card numbers become their last four digits; PAN, Aadhaar-like numbers, phone numbers, emails and one-time codes are removed. Raw SMS, email bodies and PDFs are parsed in memory and never stored. Payment references labelled `Ref`, `UTR`, `RRN` or `UPI/…` are kept because dedupe needs them.
+
+The same payment arriving by SMS, email, PDF and CSV is stored once: a matching reference is a duplicate; otherwise last four digits, amount, type, date ±1 day and a similar merchant must all match.
+
+### SMS
+
+- **Paste SMS**: press `N`, choose **Paste SMS**, preview and save.
+- **Webhook**: create a token in **Settings → Ingest tokens & devices**, then `POST /api/ingest/sms` with `Authorization: Bearer <token>`. It accepts `{"text","sender","receivedAt"}`, `{"messages":[…]}` (up to 100), the default JSON of [Incoming SMS to URL forwarder](https://github.com/bogkonstantin/android_income_sms_gateway_webhook) and SMS events from [Message487](https://github.com/andre487/AndroidMessage487). The limit is 60 requests a minute per token.
+
+```sh
+curl -X POST "$APP_URL/api/ingest/sms" -H "Authorization: Bearer $TOKEN" -H "content-type: application/json" \
+  -d '{"sender":"AD-SBIUPI","text":"Dear UPI user A/C X1234 debited by 250.00 on date 25Nov26 trf to SWIGGY Refno 433012345678. -SBI"}'
+```
+
+Message487 sends the Bearer token itself; turn off its n8n confirmation or keep it, since the endpoint replies with `{"status":"accepted","event_id":…}`. The forwarder app's custom-header setting is not documented in its README, so confirm it can send the `Authorization` header before relying on it.
+
+**iPhone Shortcuts**: create a personal automation for **Message** where the message contains `debited`, then add a second one for `credited`. Add **Get Contents of URL** with method `POST`, URL `…/api/ingest/sms`, header `Authorization: Bearer <token>`, and a JSON body with `text` set to _Shortcut Input → Message_, `sender` set to _Sender_. Turn off **Ask Before Running**.
+
+### Email
+
+**Settings → Connect email** takes an IMAP host, port, user and app password (Gmail: `imap.gmail.com`, port 993, with an [app password](https://support.google.com/accounts/answer/185833)). The login is tested read-only before saving, and the password is encrypted with AES-256-GCM using `ENCRYPTION_KEY`. Only the listed bank sender addresses are searched, only after the last processed UID, in batches that save progress. PDF attachments go through the statement and CAS importers using an optional saved, encrypted PDF password; without one the job is marked **Needs password**.
+
+`.github/workflows/sync.yml` calls `POST /api/cron/email-sync` every 15 minutes and `GET /api/cron/nav` daily, using the `CRON_SECRET` repository secret and the `PROD_URL` repository variable. GitHub can delay or skip scheduled runs, so captures may lag; **Sync now** runs the same sync on demand.
+
+### PDF statements and CAS
+
+**Import → PDF statement** reads SBI, HDFC, ICICI, Axis and Kotak statements by rebuilding rows from text positions. The password, if any, is used once and never stored. A statement imports only when opening + credits − debits equals closing within ₹1. Unknown layouts go to Groq page by page when it is configured. The parser accepts up to 10 MB and 200 pages, but Vercel caps request bodies at 4.5 MB, so larger files must be imported from a local or self-hosted server.
+
+**Import → CAS (investments)** reads CAMS and KFintech mutual fund statements and NSDL or CDSL e-CAS holdings. Units are checked against transactions per folio (±0.001); mismatches are marked for review. PAN, names, addresses and emails are never stored. AMFI's `NAVAll.txt` updates NAVs for held schemes daily and fills scheme codes from ISINs. The parser is original TypeScript; the open-source [casparser](https://github.com/codereverser/casparser) project (MIT) was used as a reference for the CAS layouts.
+
+Synthetic test PDFs are generated with `npm run fixtures:pdf`. `npm run test:groq` runs one live Groq call against the Neon test branch and is skipped without a key.
+
+### Mobile JSON API
+
+`/api/v1/*` uses the Better Auth session (cookies, or the Expo client's cookie header) and returns errors as `{"error":{"code","message"}}`. Routes: `GET dashboard`; `GET, POST transactions` with cursor pagination; `GET, PATCH, DELETE transactions/:id` and `POST transactions/:id/restore` within a five-minute undo window; `GET categories`, `accounts`, `budgets`; `GET review` and `POST review/:id` with `approve`, `reject` or `edit`; `GET devices`, `DELETE devices/:id`, `POST devices/register`; `GET sms/senders`.
+
 ## Roadmap
 
 - Password reset through a free email provider
 - PWA and offline entry
-- Optional local categorization through Ollama
+- Android app with on-device bank SMS capture
 
 See [verification results](docs/verification.md), [Contributing](CONTRIBUTING.md), and the [Code of Conduct](Code_of_conduct.md).
