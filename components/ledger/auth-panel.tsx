@@ -42,8 +42,9 @@ export function AuthPanel({ createAccount, google }: { createAccount: boolean; g
     } catch { setError("Could not connect. Try again."); }
   }
   return <main id="main" className="auth-page">
+    <a className="skip-link" href="#auth-form">Skip to content</a>
     <Link className="brand" href="/"><span aria-hidden>₹</span> ExpenseTracker</Link>
-    <section className="auth-card panel">
+    <section id="auth-form" className="auth-card panel">
       <h1>{createAccount ? "Create your account" : "Sign in"}</h1>
       <form className="stack" onSubmit={handleSubmit(submit)}>
         {createAccount && <label className="field">Name<input autoComplete="name" {...register("name")} />

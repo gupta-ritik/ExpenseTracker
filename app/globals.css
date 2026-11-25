@@ -204,3 +204,38 @@ kbd { border: 1px solid currentColor; padding: .08rem .26rem; font-size: .73rem;
   .landing-footer .brand { font-size: .8rem; }
 }
 .filters-panel summary { cursor: pointer; padding: .7rem 0; min-height: 44px; }.filters-panel[open] summary { margin-bottom: .5rem; }.section-head { margin-bottom: .8rem; }.budget-item { margin-bottom: .7rem; }.rule-list summary { overflow-wrap: anywhere; }.rule-list summary .mono { margin-left: .5rem; color: var(--muted); font-size: .72rem; }
+.quick-pending { position: fixed; right: 1.5rem; bottom: 5rem; z-index: 8; max-width: min(90vw, 370px); background: var(--bg); border: 2px solid var(--fg); padding: .6rem; overflow-wrap: anywhere; }.quick-pending span { font-family: var(--mono); font-size: .8rem; } @media (max-width: 760px) { .quick-pending { right: .9rem; bottom: 7rem; } }
+
+/* The landing header shares the same inset as the two content sections. */
+.landing-nav { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); }
+.hero { min-height: 100svh; padding-top: 76px; }
+.hero-grid { align-items: start; }
+.frame-total strong { font-size: clamp(1.5rem, 2.9vw, 2.55rem); }
+.features { min-height: 100svh; }
+.features-action { margin-top: 1.25rem; }
+.features .feature-grid article { min-height: clamp(170px, 28vh, 280px); }
+.button:focus-visible {
+  outline: 3px solid var(--fg);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--accent);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-moment="letters-assemble"] span {
+      display: inline-block;
+      animation: assemble-title linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 19%;
+    }
+    [data-moment="letters-assemble"] span:nth-child(2) { animation-range: entry 5% cover 23%; }
+    @keyframes assemble-title {
+      from { transform: translateY(9px); letter-spacing: .01em; }
+      to { transform: translateY(0); letter-spacing: -.05em; }
+    }
+  }
+}
+@media (max-width: 760px) {
+  .hero { min-height: 100svh; padding-top: 64px; }
+  .features .feature-grid article { min-height: 142px; }
+}
+.panel { min-width: 0; }.section-head, .budget-bar .row { flex-wrap: wrap; }.app-main > .stack > * { min-width: 0; }.section-head h2 { min-width: 0; overflow-wrap: anywhere; }

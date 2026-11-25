@@ -143,6 +143,7 @@ export function EntryDialog({ options, initial, recurring, open, onOpenChange, t
 
 export function QuickAdd({ options, onPending, floating = true }: { options: EntryOptions; onPending?: (label?: string) => void; floating?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [pendingLabel, setPendingLabel] = useState<string>();
   useEffect(() => {
     if (!floating) return;
     function keydown(event: KeyboardEvent) {
@@ -155,8 +156,10 @@ export function QuickAdd({ options, onPending, floating = true }: { options: Ent
     window.addEventListener("keydown", keydown);
     return () => window.removeEventListener("keydown", keydown);
   }, [floating]);
-  return <EntryDialog options={options} open={open} onOpenChange={setOpen} onPending={onPending}
+  return <>
+    {pendingLabel && <p className="quick-pending" role="status">{pendingLabel} <span>Saving...</span></p>}
+    <EntryDialog options={options} open={open} onOpenChange={setOpen} onPending={label => { setPendingLabel(label); onPending?.(label); }}
     trigger={<button className={`button primary${floating ? " quick-add" : ""}`} aria-keyshortcuts={floating ? "N" : undefined}>
       <Plus size={20} aria-hidden /> Add transaction {floating && <kbd>N</kbd>}
-    </button>} />;
+    </button>} /></>;
 }

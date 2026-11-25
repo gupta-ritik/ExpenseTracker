@@ -2,7 +2,7 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Fragment, useState, useTransition } from "react";
+import { Fragment, useState } from "react";
 import { setEntryDeleted } from "../../lib/expense/actions";
 import type { transactions } from "../../lib/db/schema";
 import type { Currency } from "../../lib/expense/money";
@@ -18,7 +18,7 @@ export function TransactionFeed({ entries, options, currency, editable = false }
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [undo, setUndo] = useState<Entry>();
   const [message, setMessage] = useState("");
-  const [busy, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
   const router = useRouter();
   const names = new Map(options.accounts.map(account => [account.id, account.name]));
   const category = new Map(options.categories.map(item => [item.id, item.name]));
@@ -30,21 +30,22 @@ export function TransactionFeed({ entries, options, currency, editable = false }
     return next;
   });
 
-  function toggle(entry: Entry, deleted: boolean) {
+  async function toggle(entry: Entry, deleted: boolean) {
+    setBusy(true);
     setMessage("");
     setVisibility(entry.id, deleted);
-    startTransition(async () => {
-      try {
-        const result = await setEntryDeleted(entry.id, deleted);
-        if (!result.ok) throw Error(result.error);
-        setUndo(deleted ? entry : undefined);
-        setMessage(deleted ? "Transaction deleted." : "Transaction restored.");
-        router.refresh();
-      } catch {
-        setVisibility(entry.id, !deleted);
-        setMessage("Could not update the transaction. Try again.");
-      }
-    });
+    try {
+      const result = await setEntryDeleted(entry.id, deleted);
+      if (!result.ok) throw Error(result.error);
+      setUndo(deleted ? entry : undefined);
+      setMessage(deleted ? "Transaction deleted." : "Transaction restored.");
+      router.refresh();
+    } catch {
+      setVisibility(entry.id, !deleted);
+      setMessage("Could not update the transaction. Try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return <div>

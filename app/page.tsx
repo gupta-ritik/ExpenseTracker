@@ -9,21 +9,22 @@ const features = [
 ];
 
 export default function Home() {
-  return <div className="landing">
-    <header className="landing-nav wrap">
+  return <>
+    <header className="nav landing-nav wrap">
+      <a className="skip-link" href="#main">Skip to content</a>
       <Link href="/" className="brand"><span aria-hidden>₹</span> ExpenseTracker</Link>
       <Link href="/sign-in" className="button">Sign in</Link>
     </header>
     <main id="main">
       <section className="hero" data-enter>
         <div className="wrap hero-grid">
-          <div className="hero-copy">
+          <div className="hero-text hero-copy">
             <p className="section-label mono">{"// PERSONAL FINANCE · INDIA"}</p>
             <h1>Track your expenses in rupees.</h1>
             <p>Log everyday spending, import your bank statement, and see what you have left in this month’s budget.</p>
             <Link href="/sign-up" className="button primary">Start free <ArrowRight size={20} aria-hidden /></Link>
           </div>
-          <div className="app-frame panel" aria-label="Example monthly overview">
+          <div className="app-frame panel" data-visual role="img" aria-label="Example monthly overview">
             <div className="frame-title row spread"><span className="mono">{"// THIS MONTH"}</span><span className="mono">INR</span></div>
             <div className="frame-total"><span className="mono">TOTAL BALANCE</span><strong className="money">₹47,280.50</strong></div>
             <div className="frame-metrics">
@@ -37,14 +38,15 @@ export default function Home() {
       </section>
       <section className="features" id="features">
         <div className="wrap">
-          <h2>Your daily ledger</h2>
+          <h2 data-moment="letters-assemble"><span>Tools for</span> <span>your daily ledger</span></h2>
           <div className="feature-grid">
             {features.map(({ icon: Icon, title, body }) => <article key={title}><Icon size={26} aria-hidden />
               <h3>{title}</h3><p>{body}</p></article>)}
           </div>
+          <div className="features-action"><Link href="/sign-up" className="button primary">Start free <ArrowRight size={20} aria-hidden /></Link></div>
         </div>
       </section>
     </main>
     <footer className="wrap landing-footer"><span className="brand"><span aria-hidden>₹</span> ExpenseTracker</span><Link href="/sign-up">Start free <ArrowRight size={18} aria-hidden /></Link></footer>
-  </div>;
+  </>;
 }

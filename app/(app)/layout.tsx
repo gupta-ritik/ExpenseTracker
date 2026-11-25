@@ -8,6 +8,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const user = await requireUser();
   const options = await getOptions(user.id);
   return <div className="app-shell">
+    <a className="skip-link" href="#main">Skip to content</a>
     <Navigation name={user.name} />
     <main id="main" className="app-main">{children}</main>
     <QuickAdd options={options} />
