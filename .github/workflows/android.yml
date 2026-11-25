@@ -101,6 +101,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          set -euo pipefail
           version=$(node -p "require('./package.json').version")
           test "$GITHUB_REF_NAME" = "android-v$version"
           : "${ANDROID_KEYSTORE_BASE64:?Set ANDROID_KEYSTORE_BASE64}" "${ANDROID_KEYSTORE_PASSWORD:?Set ANDROID_KEYSTORE_PASSWORD}" "${ANDROID_KEY_ALIAS:?Set ANDROID_KEY_ALIAS}" "${ANDROID_KEY_PASSWORD:?Set ANDROID_KEY_PASSWORD}"
@@ -112,7 +113,8 @@ jobs:
           apk="android/app/build/outputs/apk/release/app-release.apk"
           expected=$(keytool -exportcert -alias "$ANDROID_KEY_ALIAS" -keystore "$ANDROID_KEYSTORE_PATH" -storepass:env ANDROID_KEYSTORE_PASSWORD | sha256sum | cut -d' ' -f1)
           actual=$("$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs "$apk" | awk '/Signer #1 certificate SHA-256 digest/ {print $NF}')
-          test -n "$actual" && test "$actual" = "$expected"
+          test -n "$actual"
+          test "$actual" = "$expected"
           cp "$apk" "$RUNNER_TEMP/expense-tracker-$version.apk"
       - name: Upload the signed APK to the GitHub Release
         env:
