@@ -3,6 +3,9 @@ import { db } from "../db";
 import { categories, merchantRules, transactions } from "../db/schema";
 import { rulePattern } from "./categorize";
 
+// JS dates carry milliseconds; Postgres keeps microseconds. Page at the same precision.
+const createdMs = sql`date_trunc('milliseconds', ${transactions.createdAt})`;
+
 const pending = (userId: string) =>
   and(
     eq(transactions.userId, userId),
@@ -42,16 +45,16 @@ export async function reviewQueue(
         pending(userId),
         after
           ? or(
-              lt(transactions.createdAt, new Date(after.createdAt)),
+              sql`${createdMs} < ${new Date(after.createdAt)}`,
               and(
-                eq(transactions.createdAt, new Date(after.createdAt)),
+                sql`${createdMs} = ${new Date(after.createdAt)}`,
                 lt(transactions.id, after.id),
               ),
             )
           : undefined,
       ),
     )
-    .orderBy(desc(transactions.createdAt), desc(transactions.id))
+    .orderBy(desc(createdMs), desc(transactions.id))
     .limit(limit + 1);
   return { items: rows.slice(0, limit), more: rows.length > limit };
 }

@@ -18,10 +18,12 @@
     "db:studio": "drizzle-kit studio",
     "db:test:migrate": "tsx scripts/migrate-test.ts",
     "db:backfill-categories": "tsx scripts/backfill-categories.ts",
-    "fixtures:pdf": "tsx scripts/make-pdf-fixtures.ts"
+    "fixtures:pdf": "tsx scripts/make-pdf-fixtures.ts",
+    "test:groq": "vitest run --config vitest.live.config.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.28",
+    "@better-auth/expo": "^1.7.28",
     "@fontsource/archivo-black": "^5.2.0",
     "@fontsource/jetbrains-mono": "^5.2.0",
     "@hookform/resolvers": "^5.9.2",
