@@ -1,0 +1,29 @@
+sender: VM-HDFCBK
+expect: expense 499.00 last4=1234 ref=433112345678 merchant=SWIGGY date=2026-11-25
+Sent Rs.499.00
+From HDFC Bank A/C *1234
+To SWIGGY
+On 25/11/26
+Ref 433112345678
+Not You?
+Call 18002586161/SMS BLOCK UPI to 7308080808
+---
+sender: AD-HDFCBK
+expect: income 1500.00 last4=1234 ref=433212345678 date=2026-11-24
+Money Received - INR 1,500.00 in your HDFC Bank A/c XX1234 on 24-11-26 by A/c linked to VPA rahul.k@okicici (UPI Ref No 433212345678).
+---
+sender: JM-HDFCBK
+expect: income 75000.00 last4=1234 merchant=ACME TECHNOLOGIES PVT LTD date=2026-11-01
+Update! INR 75,000.00 deposited in HDFC Bank A/c XX1234 on 01-NOV-26 for NEFT Cr-ICIC0000123-ACME TECHNOLOGIES PVT LTD-SALARY NOV-ICICN52026110112345.Avl bal INR 1,05,000.00.
+---
+sender: VM-HDFCBK
+expect: expense 2350.00 last4=5678 merchant=FLIPKART date=2026-11-23
+Spent Rs.2,350.00 On HDFC Bank Card 5678 At FLIPKART On 2026-11-23:14:22:10 Bal Rs.45,000.00 Not You? Call 18002586161
+---
+sender: VM-HDFCBK
+expect: expense 5000.00 last4=1234 merchant=MG ROAD date=2026-11-21
+Rs.5000.00 withdrawn from HDFC Bank A/c XX1234 at ATM MG ROAD BANGALORE on 21-11-26. Avl bal: Rs.12,345.67
+---
+sender: VM-HDFCBK
+expect: expense 10000.00 last4=1234 ref=432612345678 date=2026-11-22
+IMPS INR 10,000.00 sent from HDFC Bank A/c XX1234 on 22-11-26 To A/c XX9876 (IMPS Ref No. 432612345678)

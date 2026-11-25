@@ -1,0 +1,19 @@
+sender: VM-KOTAKB
+expect: expense 220.00 last4=1234 ref=433712345678 merchant=RAPIDO date=2026-11-25
+Sent Rs.220.00 from Kotak Bank AC X1234 to rapido@ybl on 25-11-26.UPI Ref 433712345678. Not you, https://kotak.com/KBANKT/Fraud
+---
+sender: VM-KOTAKB
+expect: income 3000.00 last4=1234 ref=433812345678 merchant=AMIT S date=2026-11-24
+Received Rs.3,000.00 in your Kotak Bank AC X1234 from amit.s@okhdfcbank on 24-11-26.UPI Ref:433812345678.
+---
+sender: AD-KOTAKM
+expect: expense 1150.00 last4=5678 merchant=IRCTC date=2026-11-23
+Rs.1,150.00 spent on Kotak Credit Card x5678 on 23/11/2026 at IRCTC. Avl limit Rs.48,850.00
+---
+sender: VM-KOTAKB
+expect: expense 15000.00 last4=1234 ref=432712345678 date=2026-11-22
+Your Kotak Bank AC X1234 is debited by Rs.15,000.00 towards IMPS to A/C XX4321 on 22-11-26. IMPS Ref 432712345678
+---
+sender: VM-KOTAKB
+expect: expense 2500.00 last4=1234 merchant=KOTAK HSR LAYOUT date=2026-11-21
+Rs.2,500.00 withdrawn at ATM KOTAK HSR LAYOUT from Kotak Bank AC X1234 on 21-11-26. Avl bal Rs.7,500.00

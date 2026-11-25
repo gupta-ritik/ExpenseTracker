@@ -1,0 +1,35 @@
+sender: AD-AXISBK
+expect: expense 450.00 last4=1234 ref=433512345678 merchant=UBER INDIA date=2026-11-25
+INR 450.00 debited
+A/c no. XX1234
+25-11-26, 13:45:10
+UPI/P2M/433512345678/UBER INDIA
+Not you? SMS BLOCKUPI Cust ID to 919951860002
+Axis Bank
+---
+sender: AD-AXISBK
+expect: income 2000.00 last4=1234 ref=433612345678 merchant=PRIYA S date=2026-11-24
+INR 2,000.00 credited
+A/c no. XX1234
+24-11-26, 10:12:01 IST
+UPI/P2A/433612345678/PRIYA S
+- Axis Bank
+---
+sender: VM-AXISCC
+expect: expense 799.00 last4=5678 merchant=BIGBASKET date=2026-11-23
+Spent
+Card no. XX5678
+INR 799.00
+23-11-26 20:15:33
+BIGBASKET
+Avl Lmt INR 49,201.00
+SMS BLOCK 5678 to 919951860002
+Axis Bank
+---
+sender: VM-AXISBK
+expect: income 40000.00 last4=1234 ref=AXISCN0123456789 merchant=ACME TECHNOLOGIES SALARY date=2026-11-01
+INR 40,000.00 credited to A/c no. XX1234 on 01-11-26 at 09:00:00 IST by NEFT/AXISCN0123456789/ACME TECHNOLOGIES SALARY. Avl Bal INR 55,000.00 - Axis Bank
+---
+sender: VM-AXISBK
+expect: expense 1000.00 last4=1234 merchant=AXIS INDIRANAGAR date=2026-11-22
+INR 1,000.00 withdrawn from A/c no. XX1234 on 22-11-26 at ATM AXIS INDIRANAGAR. Avl Bal INR 4,000.00 - Axis Bank

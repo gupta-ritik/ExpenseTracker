@@ -1,0 +1,19 @@
+sender: AX-ICICIB
+expect: expense 350.00 ref=433312345678 merchant=ZOMATO date=2026-11-25
+ICICI Bank Acct XX234 debited for Rs 350.00 on 25-Nov-26; ZOMATO credited. UPI:433312345678. Call 18002662 for dispute. SMS BLOCK 234 to 9215676766.
+---
+sender: VM-ICICIB
+expect: income 1200.00 ref=433412345678 merchant=RAHUL K date=2026-11-24
+Dear Customer, Acct XX234 is credited with Rs 1,200.00 on 24-Nov-26 from RAHUL K. UPI:433412345678-ICICI Bank.
+---
+sender: VM-ICICIT
+expect: expense 3499.00 last4=5678 merchant=MYNTRA date=2026-11-23
+INR 3,499.00 spent using ICICI Bank Card XX5678 on 23-Nov-26 on MYNTRA. Avl Limit: INR 96,501.00. If not you, call 1800 2662/SMS BLOCK 5678 to 9215676766.
+---
+sender: JD-ICICIB
+expect: income 60000.00 merchant=SALARY ACME TECHNOLOGIES date=2026-11-01
+ICICI Bank Account XX234 credited:Rs. 60,000.00 on 01-Nov-26. Info NEFT-SALARY-ACME TECHNOLOGIES. Available Balance is Rs. 1,10,000.00.
+---
+sender: VM-ICICIB
+expect: expense 3000.00 merchant=ICICI KORAMANGALA date=2026-11-22
+Rs 3,000.00 withdrawn from ICICI Bank Acct XX234 on 22-Nov-26 at ATM ICICI KORAMANGALA. Avl Bal Rs 9,000.00

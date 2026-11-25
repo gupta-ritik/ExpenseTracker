@@ -1,0 +1,31 @@
+sender: VM-HDFCBK
+expect: ignore Verification code
+123456 is your OTP for transaction of Rs.2,499.00 at AMAZON on HDFC Bank Card 5678. Valid for 5 mins. Do not share. -HDFC Bank
+---
+sender: VM-ICICIB
+expect: ignore Promotion
+Get a pre-approved personal loan up to Rs.5,00,000 from ICICI Bank. Apply now: https://icici.co/xyz T&C
+---
+sender: VM-AXISCC
+expect: ignore Reminder
+Payment of Rs.12,345.00 for your Axis Bank Credit Card XX5678 is due on 05-12-26. Minimum due Rs.620.00.
+---
+sender: VM-KOTAKB
+expect: ignore Unsuccessful transaction
+Your transaction of Rs.1,000.00 from Kotak Bank AC X1234 to merchant@ybl has failed. Amount if debited will be refunded.
+---
+sender: VM-SBICRD
+expect: ignore Reminder
+Your SBI Card statement for Nov 2026 is ready. Total due Rs 8,200. Pay by 15-Dec-26.
+---
+sender: VM-HDFCBK
+expect: ignore Balance only
+Avl Bal in A/c XX1234 as on 25-11-26 is INR 25,000.00 -HDFC Bank
+---
+sender: VM-ICICIB
+expect: ignore Unsuccessful transaction
+Txn of INR 4,500.00 on ICICI Bank Card XX5678 declined due to insufficient limit.
+---
+sender: VM-SBIINB
+expect: ignore Verification code
+Dear Customer, OTP for login to SBI YONO is 482913. Do not share it with anyone.

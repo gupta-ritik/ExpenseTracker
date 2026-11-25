@@ -16,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "db:test:migrate": "tsx scripts/migrate-test.ts"
+    "db:test:migrate": "tsx scripts/migrate-test.ts",
+    "db:backfill-categories": "tsx scripts/backfill-categories.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.28",
@@ -30,7 +31,9 @@
     "better-auth": "^1.7.28",
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.4",
+    "imapflow": "^2.12.2",
     "lucide-react": "^1.80.0",
+    "mailparser": "^3.15.0",
     "next": "^15.5.0",
     "papaparse": "^5.7.1",
     "pg": "^8.23.1",
@@ -39,12 +42,15 @@
     "react-hook-form": "^7.92.0",
     "react-is": "^19.0.0",
     "recharts": "^3.11.1",
+    "unpdf": "^2.2.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@cantoo/pdf-lib": "^2.11.1",
     "@eslint/eslintrc": "^3.3.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.0.0",
+    "@types/mailparser": "^3.9.0",
     "@types/node": "^22",
     "@types/papaparse": "^5.5.2",
     "@types/pg": "^8.23.1",
