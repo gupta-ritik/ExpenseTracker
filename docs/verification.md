@@ -79,3 +79,25 @@ The branch started from `68554b9` on `main`.
 8. Recurring entries, balances, budgets, and reports use the same ledger.
 9. The shared ledger components define the existing visual and interaction patterns.
 10. Vitest checks parser logic and isolation, Playwright covers browser flows, and CI runs the baseline checks.
+
+### Vercel and secret-history checkpoint
+
+| Check                                                     | Result                                                                                                                                                                                            |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vercel link`                                             | The non-interactive CLI requested confirmation. Linking by project ID and team succeeded without signing in again. The command wrote to `.env.local`, and the prior local contents were restored. |
+| `vercel project inspect` and `vercel inspect`             | Confirmed the repository, production branch, and alias `https://expense-tracker-stmh.vercel.app`. The live deployment is a legacy build on Node.js 20.x.                                          |
+| `curl https://expense-tracker-stmh.vercel.app/api/health` | Returned HTTP 500. The linked project has no production environment variables.                                                                                                                    |
+| Groq model list                                           | HTTP 200. Both `openai/gpt-oss-20b` and `openai/gpt-oss-120b` are active.                                                                                                                         |
+
+Run the history rewrite yourself from a fresh mirror clone with `git-filter-repo` 2.47 or later. Coordinate with collaborators and rotate the exposed credentials first. The rewrite changes commit IDs and the force-push replaces remote refs. Re-clone or rebase unpublished work onto the rewritten history before pushing it.
+
+```sh
+git clone --mirror https://github.com/gupta-ritik/ExpenseTracker.git ExpenseTracker-scrub.git
+cd ExpenseTracker-scrub.git
+git filter-repo --sensitive-data-removal --path .env --invert-paths
+git log --all -- .env
+# Check that the previous command reports no commits before pushing.
+git push --force --mirror https://github.com/gupta-ritik/ExpenseTracker.git
+```
+
+Protected branches can block the push, and GitHub-owned pull request refs may remain. See [GitHub's sensitive-data removal guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
