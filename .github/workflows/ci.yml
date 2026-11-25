@@ -12,6 +12,11 @@ jobs:
       DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       BETTER_AUTH_URL: http://localhost:3100
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GROQ_MODEL: ${{ secrets.GROQ_MODEL }}
+      GROQ_MODEL_LARGE: ${{ secrets.GROQ_MODEL_LARGE }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

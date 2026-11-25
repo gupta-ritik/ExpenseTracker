@@ -1,0 +1,23 @@
+sender: AD-SBIUPI
+expect: expense 250.00 last4=1234 ref=433012345678 merchant=SWIGGY date=2026-11-25
+Dear UPI user A/C X1234 debited by 250.00 on date 25Nov26 trf to SWIGGY Refno 433012345678. If not u? call 1800111109. -SBI
+---
+sender: VM-SBIUPI
+expect: income 500.00 last4=1234 ref=433098765432 date=2026-11-24
+Dear SBI UPI User, ur A/cX1234 credited by Rs500 on 24Nov26 by  (Ref no 433098765432)
+---
+sender: JD-SBIINB
+expect: income 50000.00 last4=1234 merchant=ACME TECHNOLOGIES SALARY date=2026-11-01
+Your A/C XXXXX1234 Credited INR 50,000.00 on 01/11/26 -Deposit by transfer from ACME TECHNOLOGIES SALARY. Avl Bal INR 1,20,000.00-SBI
+---
+sender: AX-ATMSBI
+expect: expense 2000.00 last4=1234 date=2026-11-22
+Dear Customer, Your A/C XXXXX1234 has a debit by withdrawal of Rs 2,000.00 on 22Nov26. Avl Bal Rs 18,000.00 -SBI
+---
+sender: VK-SBICRD
+expect: expense 1299.00 last4=5678 merchant=AMAZON date=2026-11-23
+Rs.1,299.00 spent on your SBI Credit Card ending 5678 at AMAZON on 23/11/26. Trxn. Ref No. 123456. Not you? Call 18001801290
+---
+sender: BP-SBIINB
+expect: expense 12000.00 last4=1234 ref=SBIN426328123456 date=2026-11-20
+Your A/C XXXXX1234 Debited INR 12,000.00 on 20/11/26 -Transferred by NEFT/SBIN426328123456 to LANDLORD. Avl Bal INR 6,000.00 -SBI

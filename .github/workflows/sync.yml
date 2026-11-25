@@ -1,0 +1,37 @@
+name: Scheduled sync
+
+# GitHub may delay or skip scheduled runs under load; email capture can lag by
+# more than 15 minutes. "Sync now" in Settings runs the same sync on demand.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+    - cron: "30 17 * * *" # 23:00 Asia/Kolkata, after AMFI publishes NAVs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  email:
+    if: github.event.schedule != '30 17 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      PROD_URL: ${{ vars.PROD_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Sync bank alert emails
+        if: env.PROD_URL != '' && env.CRON_SECRET != ''
+        run: curl --fail-with-body -sS -X POST -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/email-sync"
+
+  nav:
+    if: github.event.schedule == '30 17 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      PROD_URL: ${{ vars.PROD_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Update AMFI NAVs
+        if: env.PROD_URL != '' && env.CRON_SECRET != ''
+        run: curl --fail-with-body -sS -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/nav"

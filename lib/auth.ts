@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { expo } from "@better-auth/expo";
 import { db } from "./db";
 import * as schema from "./db/auth-schema";
 import { authEnvironment } from "./env";
@@ -10,19 +11,32 @@ import { seedDefaults } from "./expense/defaults";
 
 function configureAuth() {
   const env = authEnvironment();
-  const google = env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
-    ? { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET }
-    : undefined;
+  const google =
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+        }
+      : undefined;
 
   return betterAuth({
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    // The Android app signs in through the Expo plugin and its custom scheme.
+    trustedOrigins: [env.BETTER_AUTH_URL, "expensetracker://"],
+    plugins: [expo()],
     database: drizzleAdapter(db(), { provider: "pg", schema }),
     emailAndPassword: { enabled: true, minPasswordLength: 8 },
     socialProviders: google ? { google } : {},
     user: { deleteUser: { enabled: true } },
     databaseHooks: {
-      user: { create: { after: async (user) => { await seedDefaults(user.id); } } },
+      user: {
+        create: {
+          after: async (user) => {
+            await seedDefaults(user.id);
+          },
+        },
+      },
     },
   });
 }
@@ -33,7 +47,9 @@ export function auth() {
   return instance;
 }
 
-export const session = cache(async () => auth().api.getSession({ headers: await headers() }));
+export const session = cache(async () =>
+  auth().api.getSession({ headers: await headers() }),
+);
 
 export async function requireUser() {
   const active = await session();

@@ -1,0 +1,23 @@
+sender: GPAY
+expect: expense 150.00 ref=433912345678 merchant=CHAI POINT
+₹150 paid to CHAI POINT using Google Pay. UPI transaction ID: 433912345678
+---
+sender: GPAY
+expect: income 500.00 ref=434012345678 merchant=NEHA
+You received ₹500 from Neha via Google Pay. UPI Ref: 434012345678
+---
+sender: VM-PHONEPE
+expect: expense 89.00 last4=1234 ref=T2611251234567890 merchant=SWIGGY INSTAMART
+Paid Rs.89 to Swiggy Instamart from SBI a/c XX1234 via PhonePe. Txn ID: T2611251234567890
+---
+sender: VM-PHONEPE
+expect: income 1000.00 last4=1234 ref=T2611241234567891 merchant=ROHAN M
+Received Rs.1,000 from Rohan M in your HDFC Bank a/c XX1234 via PhonePe. Txn ID: T2611241234567891
+---
+sender: VM-PAYTM
+expect: expense 299.00 ref=434112345678 merchant=AIRTEL PREPAID
+Rs.299 paid to Airtel Prepaid from Paytm UPI. UPI Ref: 434112345678. Paytm
+---
+sender: VM-PYTMBK
+expect: expense 60.00 ref=26112512345 merchant=ZEPTO
+Paid Rs.60 to ZEPTO from Paytm Wallet. Txn ID 26112512345. Updated Balance: Rs.440

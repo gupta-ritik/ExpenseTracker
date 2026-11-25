@@ -57,3 +57,81 @@ git filter-repo --force --sensitive-data-removal --no-fetch --path .env --invert
 Rewriting changes historical commit IDs. A hosted copy also needs its affected refs replaced by the repository owner. Rotate the old credentials regardless of the history cleanup.
 
 The Vercel CLI returned `Logged out`. No Vercel deployment was created in this run.
+
+## Automatic capture baseline
+
+The branch started from `68554b9` on `main`.
+
+| Check               | Result                                                                           |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `npm run lint`      | Passed.                                                                          |
+| `npm run typecheck` | Passed.                                                                          |
+| `npm test`          | 11 tests passed across three files, including isolation on the Neon test branch. |
+| `npm run build`     | Passed on Next.js 15.5.29.                                                       |
+
+1. Next.js App Router serves the ledger and API routes.
+2. Better Auth handles sessions, and Node middleware protects named web routes.
+3. Drizzle manages schema and migrations, and the app uses a pooled Neon connection with certificate verification.
+4. The test loader compares Neon endpoints before running database tests.
+5. Ledger queries and writes scope records to the authenticated user.
+6. Transactions use integer paise and owner-scoped account and category constraints.
+7. CSV import parses bank layouts, previews duplicates, then inserts eligible rows in a transaction.
+8. Recurring entries, balances, budgets, and reports use the same ledger.
+9. The shared ledger components define the existing visual and interaction patterns.
+10. Vitest checks parser logic and isolation, Playwright covers browser flows, and CI runs the baseline checks.
+
+### Vercel and secret-history checkpoint
+
+| Check                                                     | Result                                                                                                                                                                                            |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vercel link`                                             | The non-interactive CLI requested confirmation. Linking by project ID and team succeeded without signing in again. The command wrote to `.env.local`, and the prior local contents were restored. |
+| `vercel project inspect` and `vercel inspect`             | Confirmed the repository, production branch, and alias `https://expense-tracker-stmh.vercel.app`. The live deployment is a legacy build on Node.js 20.x.                                          |
+| `curl https://expense-tracker-stmh.vercel.app/api/health` | Returned HTTP 500. The linked project has no production environment variables.                                                                                                                    |
+| Groq model list                                           | HTTP 200. Both `openai/gpt-oss-20b` and `openai/gpt-oss-120b` are active.                                                                                                                         |
+
+Run the history rewrite yourself from a fresh mirror clone with `git-filter-repo` 2.47 or later. Coordinate with collaborators and rotate the exposed credentials first. The rewrite changes commit IDs and the force-push replaces remote refs. Re-clone or rebase unpublished work onto the rewritten history before pushing it.
+
+```sh
+git clone --mirror https://github.com/gupta-ritik/ExpenseTracker.git ExpenseTracker-scrub.git
+cd ExpenseTracker-scrub.git
+git filter-repo --sensitive-data-removal --path .env --invert-paths
+git log --all -- .env
+# Check that the previous command reports no commits before pushing.
+git push --force --mirror https://github.com/gupta-ritik/ExpenseTracker.git
+```
+
+Protected branches can block the push, and GitHub-owned pull request refs may remain. See [GitHub's sensitive-data removal guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
+
+## Part A: automatic capture (feat/auto-capture)
+
+Run on 2026-11-25 on Windows with Node.js 26.9.0 against the Neon `test` branch. Vitest must run from an upper-case `C:\` working directory on this machine; from `c:\` every suite fails with "Vitest failed to find the current suite".
+
+| Check                            | Result                                                                                                                                                                                                                                                                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`                   | Passed with zero warnings.                                                                                                                                                                                                                                                                                                               |
+| `npm run typecheck`              | Passed.                                                                                                                                                                                                                                                                                                                                  |
+| `npm test`                       | 145 tests passed across 8 files: alert fixtures (45), masking, normalization, categorization, dedupe, encryption, mocked Groq (valid, invalid JSON, 429 retry, timeout), PDF statements, CAS, XIRR, capture integration and every `/api/v1` route.                                                                                       |
+| `npm run build`                  | Passed on Next.js 15.5.29, including `/review`, `/investments`, `/api/ingest/sms`, `/api/cron/*` and `/api/v1/*`.                                                                                                                                                                                                                        |
+| `npx playwright test`            | 3 passed: the existing ledger and design flows, and the capture flow (paste 3 SMS with 2 parsed and the OTP ignored, review with "Always use this", password-protected HDFC PDF that reconciles, re-upload with 0 new rows, a failing reconciliation that imports nothing, CAS upload, investments, net worth, token create and revoke). |
+| `npm run test:groq`              | Passed. `ai_usage` recorded `{"feature":"alert","model":"openai/gpt-oss-120b","inputTokens":333,"outputTokens":264,"ok":true}` and the row was saved as ₹640.00, `needs_review`, confidence 70. The local `.env.local` sets `GROQ_MODEL` to the large model.                                                                             |
+| `npm run db:test:migrate`        | Applied `0001_automatic_capture` to the test branch.                                                                                                                                                                                                                                                                                     |
+| `npm run db:migrate`             | Applied `0001_automatic_capture` to production.                                                                                                                                                                                                                                                                                          |
+| `npm run db:backfill-categories` | Default categories checked for 1 production user.                                                                                                                                                                                                                                                                                        |
+| `npm run db:generate`            | No schema changes after the migration.                                                                                                                                                                                                                                                                                                   |
+| `neon config plan`               | No changes. The production branch already matches the policy.                                                                                                                                                                                                                                                                            |
+| Cross-source dedupe              | One HDFC UPI payment sent by SMS, then email, then the HDFC PDF, then CSV produced one row. A different amount produced a second row.                                                                                                                                                                                                    |
+| Raw text                         | No sentinel from SMS, email, PDF or CAS fixtures appeared in any capture table.                                                                                                                                                                                                                                                          |
+
+### Migration summary
+
+`0001_automatic_capture` adds `email`, `sms`, `pdf` and `cas` to `entry_source` and `wallet` to `account_type`; `bankName` and a four-digit `last4` on accounts; `merchant`, `refNo`, `confidence` (0–100) and `status` on transactions with `(userId, status)` and `(userId, refNo)` indexes; `smsSenders` on `user_preferences`; and the `merchant_rules`, `ingest_tokens`, `mail_connections`, `import_jobs`, `holdings`, `investment_txns`, `nav_prices`, `ai_usage` and `rate_limits` tables with owner-scoped foreign keys. The `smsSenders` column was generated as a separate diff and folded into `0001` before production ran it, so production received one migration. The test branch, which already had the earlier `0001`, received the same column through a one-off `ALTER TABLE`.
+
+### Pending: needs the owner
+
+| Check                                      | Status                                                                                                                                                    |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vercel environment variables               | Not set. The automated session was not permitted to upload production secrets. The project currently has no variables, so `/api/health` returns HTTP 500. |
+| Production deploy and `/api/health`        | Waiting for the variables.                                                                                                                                |
+| Live SMS webhook, cron 401/200 and NAV run | Waiting for the deploy.                                                                                                                                   |
+| Gmail sync                                 | Waiting for an app password entered by the owner in Settings.                                                                                             |
+| GitHub secrets for CI and `sync.yml`       | Not set. CI on `main` fails at `next build` because `BETTER_AUTH_SECRET` is missing.                                                                      |

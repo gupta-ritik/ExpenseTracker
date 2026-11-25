@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import type { transactions } from "../../lib/db/schema";
 import { z } from "zod";
 import { saveEntry, saveRecurring } from "../../lib/expense/actions";
+import { SmsPaste } from "./sms-paste";
 import { entrySchema } from "../../lib/expense/validation";
 import {
   indiaToday,
@@ -269,6 +270,8 @@ export function EntryDialog({
   onSaved?: (entry: SavedEntry) => void;
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
+  const [mode, setMode] = useState<"manual" | "sms">("manual");
+  const canPaste = !initial && !recurring;
   const isOpen = open ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
   return (
@@ -292,14 +295,36 @@ export function EntryDialog({
           <Dialog.Description className="sr-only">
             Enter transaction information.
           </Dialog.Description>
-          <EntryEditor
-            options={options}
-            initial={initial}
-            recurring={recurring}
-            onClose={() => setOpen(false)}
-            onPending={onPending}
-            onSaved={onSaved}
-          />
+          {canPaste && (
+            <div className="segments" role="group" aria-label="Entry method">
+              <button
+                type="button"
+                aria-pressed={mode === "manual"}
+                onClick={() => setMode("manual")}
+              >
+                Enter manually
+              </button>
+              <button
+                type="button"
+                aria-pressed={mode === "sms"}
+                onClick={() => setMode("sms")}
+              >
+                Paste SMS
+              </button>
+            </div>
+          )}
+          {canPaste && mode === "sms" ? (
+            <SmsPaste onClose={() => setOpen(false)} />
+          ) : (
+            <EntryEditor
+              options={options}
+              initial={initial}
+              recurring={recurring}
+              onClose={() => setOpen(false)}
+              onPending={onPending}
+              onSaved={onSaved}
+            />
+          )}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
