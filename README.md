@@ -138,10 +138,15 @@ Synthetic test PDFs are generated with `npm run fixtures:pdf`. `npm run test:gro
 
 `/api/v1/*` uses the Better Auth session (cookies, or the Expo client's cookie header) and returns errors as `{"error":{"code","message"}}`. Routes: `GET dashboard`; `GET, POST transactions` with cursor pagination; `GET, PATCH, DELETE transactions/:id` and `POST transactions/:id/restore` within a five-minute undo window; `GET categories`, `accounts`, `budgets`; `GET review` and `POST review/:id` with `approve`, `reject` or `edit`; `GET devices`, `DELETE devices/:id`, `POST devices/register`; `GET sms/senders`.
 
+## Android
+
+The Android app uses your existing ExpenseTracker account and can capture masked bank SMS in the background. See the [Android build, signing and emulator instructions](mobile/README.md) and the [SMS privacy disclosure](https://expense-tracker-stmh.vercel.app/privacy). Reports, imports, investments and budget editing are available on the web.
+
+For a future Google Play release, create a Play Developer account, submit an Android App Bundle and complete the Play Console SMS Permissions Declaration for SMS-based money management. Include a demo video that shows the in-app disclosure, permission grant, masked SMS capture and how to turn access off. Publish the privacy policy and complete Data safety disclosures before submission. The current release path uses GitHub Releases.
+
 ## Roadmap
 
 - Password reset through a free email provider
 - PWA and offline entry
-- Android app with on-device bank SMS capture
 
 See [verification results](docs/verification.md), [Contributing](CONTRIBUTING.md), and the [Code of Conduct](Code_of_conduct.md).

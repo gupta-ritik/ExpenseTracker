@@ -169,6 +169,7 @@ export default function Home() {
         <Link href="/sign-up">
           Start free <ArrowRight size={18} aria-hidden />
         </Link>
+        <Link href="/privacy">SMS privacy</Link>
       </footer>
     </>
   );
