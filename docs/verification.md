@@ -57,3 +57,25 @@ git filter-repo --force --sensitive-data-removal --no-fetch --path .env --invert
 Rewriting changes historical commit IDs. A hosted copy also needs its affected refs replaced by the repository owner. Rotate the old credentials regardless of the history cleanup.
 
 The Vercel CLI returned `Logged out`. No Vercel deployment was created in this run.
+
+## Automatic capture baseline
+
+The branch started from `68554b9` on `main`.
+
+| Check               | Result                                                                           |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `npm run lint`      | Passed.                                                                          |
+| `npm run typecheck` | Passed.                                                                          |
+| `npm test`          | 11 tests passed across three files, including isolation on the Neon test branch. |
+| `npm run build`     | Passed on Next.js 15.5.29.                                                       |
+
+1. Next.js App Router serves the ledger and API routes.
+2. Better Auth handles sessions, and Node middleware protects named web routes.
+3. Drizzle manages schema and migrations, and the app uses a pooled Neon connection with certificate verification.
+4. The test loader compares Neon endpoints before running database tests.
+5. Ledger queries and writes scope records to the authenticated user.
+6. Transactions use integer paise and owner-scoped account and category constraints.
+7. CSV import parses bank layouts, previews duplicates, then inserts eligible rows in a transaction.
+8. Recurring entries, balances, budgets, and reports use the same ledger.
+9. The shared ledger components define the existing visual and interaction patterns.
+10. Vitest checks parser logic and isolation, Playwright covers browser flows, and CI runs the baseline checks.
