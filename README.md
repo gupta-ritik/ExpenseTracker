@@ -84,6 +84,18 @@ Import the repository as a Next.js project, choose Node 22 or later, and set the
 
 Run `npm run db:migrate` against the direct URL before serving production traffic. After deploying, check `GET /api/health`.
 
+## Automatic capture configuration
+
+| Variable           | Purpose                                                                    |
+| ------------------ | -------------------------------------------------------------------------- |
+| `GROQ_API_KEY`     | Optional server-side key for AI parsing. Without it, AI parsing is off.    |
+| `GROQ_MODEL`       | Alert model. Defaults to `openai/gpt-oss-20b`.                             |
+| `GROQ_MODEL_LARGE` | Statement and CAS model. Defaults to `openai/gpt-oss-120b`.                |
+| `CRON_SECRET`      | Optional bearer secret for scheduled jobs, at least 32 characters.         |
+| `ENCRYPTION_KEY`   | Optional 32-byte base64 key for encrypting saved mail and PDF credentials. |
+
+Generate the cron secret and encryption key independently, for example by running `openssl rand -base64 32` twice. Keep production and test databases separate. Store capture secrets in the hosting environment or in ignored local environment files.
+
 ## Roadmap
 
 - Password reset through a free email provider
