@@ -5,6 +5,7 @@ const pan = /\b[A-Z]{5}\d{4}[A-Z]\b/gi;
 const aadhaar = /(?<![\w\d])(?:\d{4}[- ]?\d{4}[- ]?\d{4})(?!\d)/g;
 const email = /[\w.%+-]+@[\w-]+(?:\.[\w-]+)*\.[A-Z]{2,}\b/gi;
 const mobile = /(?<![\w\d])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\d)/g;
+const tollFree = /(?<![\w\d])1[ -]?800(?:[ -]?\d){7}(?!\d)/g;
 const longDigits = /(?<![\w\d])(?:\d[ -]?){13,18}\d(?!\d)/g;
 const maskedAccount = /\b(?:x{2,}|[•*]{2,})\s*(\d{4})(?!\d)/gi;
 const referenceLabel =
@@ -54,6 +55,7 @@ export function maskCaptureText(text: string) {
     .replace(email, "[EMAIL]")
     .replace(aadhaar, unlessReference("[ID]"))
     .replace(mobile, unlessReference("[PHONE]"))
+    .replace(tollFree, unlessReference("[PHONE]"))
     .replace(longDigits, unlessReference("[NUMBER]"))
     .replace(maskedAccount, "****$1");
 }
