@@ -16,6 +16,10 @@ import {
 } from "./ingest";
 import { captureDate, normalizeMerchant } from "./normalize";
 import type { IncomingMessage } from "./adapters";
+import { runWithinBudget } from "./budget";
+
+/** No new AI call starts after this; one in flight can still take 20 s. */
+const aiBudgetMs = 10_000;
 
 export type MessageOutcome = {
   status: "parsed" | "ignored" | "unknown" | "ai";
@@ -93,6 +97,7 @@ export async function captureMessages(input: {
   let ignored = 0,
     unknown = 0,
     aiRetry = 0;
+  const needsAi: IncomingMessage[] = [];
   for (const message of input.messages) {
     const result = parseAlert(message.text, message.sender, message.receivedAt);
     if (result.kind === "parsed") {
@@ -108,7 +113,19 @@ export async function captureMessages(input: {
       unknown++;
       continue;
     }
-    const parsed = await aiParse(input.userId, message, input.fetchImpl);
+    needsAi.push(message);
+  }
+  // Each AI call can take up to 20 s. Run a few at once and stop starting new
+  // ones after the budget, so the phone (35 s timeout) always gets an answer
+  // instead of retrying the same batch forever.
+  const ai = await runWithinBudget(
+    needsAi,
+    (message) => aiParse(input.userId, message, input.fetchImpl),
+    { budgetMs: aiBudgetMs },
+  );
+  aiRetry += ai.skipped.length;
+  for (const parsed of ai.results) {
+    if (!parsed) continue;
     if (parsed.row) rows.push(parsed.row);
     else if (parsed.failure === "rate_limited" || parsed.failure === "timeout")
       aiRetry++;
@@ -125,7 +142,7 @@ export async function captureMessages(input: {
   if (aiRetry)
     await finishJob(input.userId, jobId, {
       status: "needs_ai_retry",
-      error: `${aiRetry} message(s) were not parsed because Groq was rate limited. Send them again later.`,
+      error: `${aiRetry} message(s) were not parsed because Groq was busy or slow. Send them again later.`,
     });
   return { ...result, ignored, unknown, aiRetry };
 }

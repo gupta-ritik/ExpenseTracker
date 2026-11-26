@@ -89,7 +89,8 @@ class SmsWorker(context: Context, params: WorkerParameters) : Worker(context, pa
         return try {
             connection.instanceFollowRedirects = false
             connection.connectTimeout = 15_000
-            connection.readTimeout = 35_000
+            // Match the server's 60 s limit (maxDuration) so a slow batch isn't retried forever.
+            connection.readTimeout = 60_000
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.setFixedLengthStreamingMode(bytes.size)

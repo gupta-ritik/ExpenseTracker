@@ -33,6 +33,19 @@ export async function POST(request: Request) {
         "invalid_request",
         "Send {text, sender, receivedAt} or {messages: [...]} with up to 100 messages.",
       );
+    // Accept a batch whose items were all unusable, so the sender drops them
+    // instead of retrying the same batch forever.
+    if (!payload.messages.length)
+      return ok({
+        received: 0,
+        skipped: payload.skipped ?? 0,
+        inserted: 0,
+        duplicates: 0,
+        review: 0,
+        ignored: 0,
+        unknown: 0,
+        aiRetry: 0,
+      });
     const result = await captureMessages({
       userId: token.userId,
       source: "sms",
@@ -41,6 +54,7 @@ export async function POST(request: Request) {
     const body = {
       jobId: result.jobId,
       received: payload.messages.length,
+      skipped: payload.skipped ?? 0,
       inserted: result.inserted,
       duplicates: result.duplicates,
       review: result.review,
