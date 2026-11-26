@@ -1,6 +1,6 @@
 # Expense Tracker for Android
 
-Install the root npm workspace with `npm ci`. Install JDK 17, Android SDK command-line tools, Platform-Tools, the Emulator, Android SDK Platform 37 and Build-Tools 37.0.0. Accept the Android SDK licenses and create an AVD with Google APIs. Point `JAVA_HOME` and `ANDROID_HOME` at the installations and put `platform-tools` and `emulator` on PATH.
+Install the root npm workspace with `npm ci`. Install JDK 17, Android SDK command-line tools, Platform-Tools, the Emulator, Android SDK Platform 37 (`platforms;android-37.0`) and Build-Tools 37.0.0. Accept the Android SDK licenses and create an AVD with Google APIs. Point `JAVA_HOME` and `ANDROID_HOME` at the installations and put `platform-tools` and `emulator` on PATH.
 
 From this directory:
 

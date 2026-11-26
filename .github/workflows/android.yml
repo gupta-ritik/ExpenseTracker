@@ -39,14 +39,8 @@ jobs:
       - run: npm test -w @expense-tracker/mobile
       - name: Install Android SDK packages
         run: |
-          # The runner's sdkmanager is not on PATH and can be too old to see
-          # new platforms, so update the command-line tools first.
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'cmdline-tools;latest'
-          sdkmanager="$(ls -d "$ANDROID_HOME"/cmdline-tools/latest*/bin/sdkmanager | tail -n 1)"
-          "$sdkmanager" --version
-          "$sdkmanager" --list | grep -E 'platforms;android-3[6-9]|build-tools;3[6-9]' || true
-          "$sdkmanager" 'platforms;android-37' 'build-tools;37.0.0'
+          # sdkmanager is not on PATH on ubuntu-latest. API 37 is published as android-37.0.
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0'
       - run: npx expo prebuild --platform android --no-install
         working-directory: mobile
       - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleDebug
@@ -68,14 +62,8 @@ jobs:
       - run: npm ci
       - name: Install Android SDK packages
         run: |
-          # The runner's sdkmanager is not on PATH and can be too old to see
-          # new platforms, so update the command-line tools first.
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'cmdline-tools;latest'
-          sdkmanager="$(ls -d "$ANDROID_HOME"/cmdline-tools/latest*/bin/sdkmanager | tail -n 1)"
-          "$sdkmanager" --version
-          "$sdkmanager" --list | grep -E 'platforms;android-3[6-9]|build-tools;3[6-9]' || true
-          "$sdkmanager" 'platforms;android-37' 'build-tools;37.0.0'
+          # sdkmanager is not on PATH on ubuntu-latest. API 37 is published as android-37.0.
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0'
       - run: npx expo prebuild --platform android --no-install
         working-directory: mobile
       - name: Enable emulator acceleration
@@ -110,14 +98,8 @@ jobs:
       - run: npm ci
       - name: Install Android SDK packages
         run: |
-          # The runner's sdkmanager is not on PATH and can be too old to see
-          # new platforms, so update the command-line tools first.
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'cmdline-tools;latest'
-          sdkmanager="$(ls -d "$ANDROID_HOME"/cmdline-tools/latest*/bin/sdkmanager | tail -n 1)"
-          "$sdkmanager" --version
-          "$sdkmanager" --list | grep -E 'platforms;android-3[6-9]|build-tools;3[6-9]' || true
-          "$sdkmanager" 'platforms;android-37' 'build-tools;37.0.0'
+          # sdkmanager is not on PATH on ubuntu-latest. API 37 is published as android-37.0.
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0'
       - run: npx expo prebuild --platform android --no-install
         working-directory: mobile
       - name: Sign and verify the APK
