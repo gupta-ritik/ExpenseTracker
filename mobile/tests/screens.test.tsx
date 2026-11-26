@@ -57,9 +57,15 @@ test("shows totals, review count and an empty recent-transactions state", async 
       <Dashboard edit={jest.fn()} review={review} />
     </QueryClientProvider>,
   );
-  expect(await screen.findByText("SPENT  ₹100.00")).toBeOnTheScreen();
-  expect(screen.getByText("No transactions yet.")).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole("button", { name: "REVIEW (2)" }));
+  expect(await screen.findByLabelText("Spent ₹100.00")).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      "No transactions yet. Tap + to add one, or import bank SMS.",
+    ),
+  ).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole("button", { name: "REVIEW 2 NEW TRANSACTIONS" }),
+  );
   expect(review).toHaveBeenCalledTimes(1);
 });
 
@@ -100,14 +106,12 @@ test("asks for Android permission after showing the disclosure and offers paste 
     senders: ["*-HDFCBK"],
     lastError: null,
   };
-  jest
-    .mocked(useSmsStatus)
-    .mockReturnValue({
-      data: denied,
-      isPending: false,
-      error: null,
-      refetch: jest.fn(),
-    } as unknown as ReturnType<typeof useSmsStatus>);
+  jest.mocked(useSmsStatus).mockReturnValue({
+    data: denied,
+    isPending: false,
+    error: null,
+    refetch: jest.fn(),
+  } as unknown as ReturnType<typeof useSmsStatus>);
   jest.mocked(bankSms.getStatus).mockResolvedValue(denied);
   await render(
     <QueryClientProvider client={client()}>
@@ -117,7 +121,7 @@ test("asks for Android permission after showing the disclosure and offers paste 
   await fireEvent.press(
     screen.getByRole("button", { name: "SMS PERMISSIONS" }),
   );
-  expect(screen.getByText("// BEFORE YOU ENABLE SMS")).toBeOnTheScreen();
+  expect(screen.getByText("Before you enable SMS")).toBeOnTheScreen();
   expect(bankSms.requestPermissions).toHaveBeenCalledTimes(0);
   await fireEvent.press(
     screen.getByRole("button", { name: "CONTINUE TO ANDROID PERMISSIONS" }),

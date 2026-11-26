@@ -1,4 +1,24 @@
+const { dirname, join } = require("node:path");
 const { version } = require("./package.json");
+
+// Fonts are embedded at build time; loading them at runtime silently fell back
+// to the system font in release builds. File names become the family names.
+const font = (pkg, file) =>
+  join(dirname(require.resolve(`${pkg}/package.json`)), file);
+const fonts = [
+  font(
+    "@expo-google-fonts/archivo-black",
+    "400Regular/ArchivoBlack_400Regular.ttf",
+  ),
+  font(
+    "@expo-google-fonts/jetbrains-mono",
+    "400Regular/JetBrainsMono_400Regular.ttf",
+  ),
+  font(
+    "@expo-google-fonts/jetbrains-mono",
+    "700Bold/JetBrainsMono_700Bold.ttf",
+  ),
+];
 
 const apiBaseUrl =
   process.env.EXPENSE_TRACKER_DEV_API_URL ||
@@ -26,6 +46,7 @@ module.exports = {
   plugins: [
     "expo-router",
     "expo-secure-store",
+    ["expo-font", { fonts }],
     [
       "expo-splash-screen",
       {

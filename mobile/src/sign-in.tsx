@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { auth } from "./auth";
 import { errorMessage } from "./api";
-import { Button, Field, Label, Screen, Title } from "./ui";
+import { Button, Field, Label, Screen, Title, Heading } from "./ui";
 
 export function SignIn({ onSuccess }: { onSuccess: () => void }) {
   const [signup, setSignup] = useState(false);
@@ -32,7 +32,7 @@ export function SignIn({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Screen>
       <Title>Expense Tracker</Title>
-      <Label>{signup ? "// CREATE ACCOUNT" : "// SIGN IN"}</Label>
+      <Heading>{signup ? "Create account" : "Sign in"}</Heading>
       {signup && (
         <Field
           accessibilityLabel="Name"
