@@ -15,6 +15,13 @@
       "when": 1795600531762,
       "tag": "0001_automatic_capture",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795679190625,
+      "tag": "0002_sms_senders_column",
+      "breakpoints": true
     }
   ]
 }
