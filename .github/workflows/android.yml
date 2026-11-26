@@ -43,8 +43,16 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0'
       - run: npx expo prebuild --platform android --no-install
         working-directory: mobile
-      - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleDebug
+      - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleDebug :app:assembleRelease
         working-directory: mobile/android
+      # Installable test build: release variant with the bundled JS (no Metro needed),
+      # signed with the development key because no keystore is set here. Not for distribution.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: expense-tracker-test-apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
 
   emulator:
     needs: verify
