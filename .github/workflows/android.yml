@@ -34,6 +34,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # Caches Gradle dependencies and build outputs between runs.
+      - uses: gradle/actions/setup-gradle@v4
       - run: npm ci
       - run: npm run typecheck -w @expense-tracker/mobile
       - run: npm test -w @expense-tracker/mobile
@@ -43,7 +45,8 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0'
       - run: npx expo prebuild --platform android --no-install
         working-directory: mobile
-      - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleDebug :app:assembleRelease
+      # Only arm64 (nearly every current phone); all four ABIs roughly quadruple native build time.
+      - run: ./gradlew :bank-sms:testDebugUnitTest :app:assembleRelease -PreactNativeArchitectures=arm64-v8a
         working-directory: mobile/android
       # Installable test build: release variant with the bundled JS (no Metro needed),
       # signed with the development key because no keystore is set here. Not for distribution.
@@ -67,6 +70,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # Caches Gradle dependencies and build outputs between runs.
+      - uses: gradle/actions/setup-gradle@v4
       - run: npm ci
       - name: Install Android SDK packages
         run: |
@@ -80,6 +85,9 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          # The emulator is x86_64; skip native builds for the other ABIs.
+          ORG_GRADLE_PROJECT_reactNativeArchitectures: x86_64
         with:
           api-level: 35
           target: google_apis
