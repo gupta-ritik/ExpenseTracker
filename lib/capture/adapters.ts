@@ -21,7 +21,20 @@ function toDate(value: string | number | undefined) {
 
 /** Our own format: one message, or a batch from the mobile app. */
 const single = z.object({ text, sender, receivedAt: when });
-const batch = z.object({ messages: z.array(single).min(1).max(100) });
+/**
+ * Batch items are checked one by one. A single bad item must not reject the
+ * whole batch: the phone keeps a rejected batch queued, so one message would
+ * block every later alert.
+ */
+const batch = z.object({ messages: z.array(z.unknown()).min(1).max(100) });
+const lenientItem = z.object({
+  text: z.string().transform((value) => value.trim().slice(0, 2000)),
+  sender: z
+    .string()
+    .default("")
+    .transform((value) => value.slice(0, 64)),
+  receivedAt: when.catch(undefined),
+});
 /** "Incoming SMS to URL forwarder" (bogkonstantin) default template. */
 const forwarder = z.object({
   from: z.string().max(64),
@@ -43,20 +56,31 @@ export type ParsedPayload = {
   messages: IncomingMessage[];
   format: "batch" | "single" | "forwarder" | "message487";
   eventId?: string;
+  /** Batch items that were empty or malformed and were dropped. */
+  skipped?: number;
 };
 
 /** Accepts every supported payload shape and returns plain messages. Anything else is rejected. */
 export function readSmsPayload(body: unknown): ParsedPayload | null {
   const asBatch = batch.safeParse(body);
-  if (asBatch.success)
+  if (asBatch.success) {
+    const messages = asBatch.data.messages.flatMap((raw) => {
+      const item = lenientItem.safeParse(raw);
+      if (!item.success || !item.data.text) return [];
+      return [
+        {
+          text: item.data.text,
+          sender: item.data.sender,
+          receivedAt: toDate(item.data.receivedAt),
+        },
+      ];
+    });
     return {
       format: "batch",
-      messages: asBatch.data.messages.map((item) => ({
-        text: item.text,
-        sender: item.sender,
-        receivedAt: toDate(item.receivedAt),
-      })),
+      messages,
+      skipped: asBatch.data.messages.length - messages.length,
     };
+  }
   const asM487 = message487.safeParse(body);
   if (asM487.success)
     return {
