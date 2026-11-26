@@ -15,6 +15,7 @@ class SmsPrivacyTest {
     @Test fun masksSharedAlertFixtures() {
         val fixtures = listOf("axis", "hdfc", "icici", "kotak", "negatives", "sbi", "upi-apps")
         var count = 0
+        val perFile = mutableMapOf<String, Int>()
         for (file in fixtures) {
             val input = requireNotNull(javaClass.getResourceAsStream("/$file.txt"))
                 .bufferedReader(Charsets.UTF_8).use { it.readText() }.replace("\r\n", "\n")
@@ -22,6 +23,7 @@ class SmsPrivacyTest {
                 val (header, expected, body) = block.split("\n", limit = 3)
                 val sender = header.removePrefix("sender:").trim()
                 val label = "$file alert ${++count}"
+                perFile[file] = (perFile[file] ?: 0) + 1
                 val masked = SmsPrivacy.clean(sender, body, SmsPrivacy.defaults)
                 if (expected.contains("ignore Verification code")) {
                     assertNull(label, masked)
@@ -40,7 +42,11 @@ class SmsPrivacyTest {
                 assertFalse(label, result.contains("18002586161"))
             }
         }
-        assertTrue(count >= 45)
+        // Same coverage rule as tests/unit/alerts.test.ts.
+        for (bank in listOf("axis", "hdfc", "icici", "kotak", "sbi")) {
+            assertTrue("$bank has ${perFile[bank]} alerts", (perFile[bank] ?: 0) >= 5)
+        }
+        assertTrue("upi-apps has ${perFile["upi-apps"]} alerts", (perFile["upi-apps"] ?: 0) >= 6)
     }
 
     @Test fun dropsObfuscatedVerificationAndMasksSensitiveNumbers() {
