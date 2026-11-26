@@ -64,6 +64,24 @@ describe("bank alert fixtures", () => {
 });
 
 describe("alert helpers", () => {
+  it("never takes the dispute or block footer as the merchant", () => {
+    const named = parseAlert(
+      "Rs 446.00 debited from ICICI Bank Acct XX3007 on 22-Nov-26 to ZOMATO. To dispute call 18002662 or SMS BLOCK 3007 to 9215676766.",
+      "VM-ICICIB",
+      receivedAt,
+    );
+    expect(named.kind === "parsed" && named.row.merchant).toBe("ZOMATO");
+    for (const text of [
+      "Rs 446.00 debited from ICICI Bank Acct XX3007 on 22-Nov-26. To dispute call 18002662 or SMS BLOCK 3007 to 9215676766.",
+      "ICICI Bank Acct XX3007 debited with Rs 909.00 on 22-Nov-26. Call 18002662 for dispute or SMS BLOCK 3007 to 9215676766.",
+    ]) {
+      const result = parseAlert(text, "VM-ICICIB", receivedAt);
+      expect(result.kind).toBe("parsed");
+      if (result.kind === "parsed")
+        expect(result.row.merchant).not.toMatch(/dispute|block|call/i);
+    }
+  });
+
   it("returns unknown for unrelated text", () => {
     expect(parseAlert("Lunch at 1?", "VM-FRIEND").kind).toBe("unknown");
   });

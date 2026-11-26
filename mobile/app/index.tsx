@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { auth } from "../src/auth";
 import { errorMessage } from "../src/api";
 import {
@@ -18,10 +19,24 @@ import { Dashboard, Review, Transactions, useDashboard } from "../src/ledger";
 import { Settings } from "../src/settings";
 import { SignIn } from "../src/sign-in";
 import { SmsScreen } from "../src/sms-screen";
-import { Button, Label, Row, Screen, State, usePalette } from "../src/ui";
+import {
+  Button,
+  Label,
+  Screen,
+  State,
+  TabBar,
+  tabBarHeight,
+  usePalette,
+} from "../src/ui";
 
 type Tab = "Dashboard" | "Transactions" | "Review" | "SMS" | "Settings";
-const tabs: Tab[] = ["Dashboard", "Transactions", "Review", "SMS", "Settings"];
+const tabs = [
+  { key: "Dashboard", label: "Home" },
+  { key: "Transactions", label: "Activity" },
+  { key: "Review", label: "Review" },
+  { key: "SMS", label: "SMS" },
+  { key: "Settings", label: "Settings" },
+] as const satisfies readonly { key: Tab; label: string }[];
 
 export default function Index() {
   const session = auth.useSession();
@@ -74,6 +89,7 @@ function Ledger({
   const [refreshing, setRefreshing] = useState(false);
   const client = useQueryClient();
   const palette = usePalette();
+  const insets = useSafeAreaInsets();
   const dashboard = useDashboard();
   const sms = useSmsStatus();
   const signOut = useMutation({
@@ -92,6 +108,9 @@ function Ledger({
     isPending: connecting,
   } = useMutation({
     mutationFn: () => registerDevice(user.id),
+    // Connecting happens in the background; retry quietly before showing an error.
+    retry: 3,
+    retryDelay: (attempt) => 2000 * 2 ** attempt,
     onSettled: () => {
       void client.invalidateQueries({ queryKey: ["sms-status"] });
       void client.invalidateQueries({ queryKey: ["devices"] });
@@ -110,32 +129,15 @@ function Ledger({
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.bg }}>
-      <Screen refresh={!editor ? refresh : undefined} refreshing={refreshing}>
-        {!editor && (
-          <Row>
-            {tabs.map((item) => (
-              <Button
-                key={item}
-                selected={tab === item}
-                onPress={() => setTab(item)}
-              >
-                {item.toUpperCase()}
-              </Button>
-            ))}
-          </Row>
-        )}
-        {sms.data?.revoked && tab !== "SMS" && (
+      <Screen
+        refresh={!editor ? refresh : undefined}
+        refreshing={refreshing}
+        bottomInset={editor ? 40 : 96}
+      >
+        {sms.data?.revoked && tab !== "SMS" && !editor && (
           <Button onPress={() => setTab("SMS")}>
-            Device revoked: sign in again
+            SMS CAPTURE STOPPED · FIX
           </Button>
-        )}
-        {connectError && (
-          <>
-            <Label error>{errorMessage(connectError)}</Label>
-            <Button disabled={connecting} onPress={() => connect()}>
-              RETRY DEVICE REGISTRATION
-            </Button>
-          </>
         )}
         {signOut.error && <Label error>{errorMessage(signOut.error)}</Label>}
         {editor ? (
@@ -150,7 +152,14 @@ function Ledger({
             )}
             {tab === "Review" && <Review edit={edit} currency={currency} />}
             {tab === "SMS" && (
-              <SmsScreen reconnect={() => signOut.mutate(true)} />
+              <SmsScreen
+                reconnect={() => signOut.mutate(true)}
+                connection={{
+                  error: connectError ? errorMessage(connectError) : null,
+                  connecting,
+                  retry: () => connect(),
+                }}
+              />
             )}
             {tab === "Settings" && (
               <Settings
@@ -160,18 +169,34 @@ function Ledger({
             )}
           </>
         )}
-        {!editor && <View style={{ height: 54 }} />}
       </Screen>
       {!editor && (
-        <View style={{ position: "absolute", right: 20, bottom: 32 }}>
-          <Button
-            selected
-            label="Quick add transaction"
-            onPress={() => setEditor({ review: false })}
+        <>
+          <View
+            style={{
+              position: "absolute",
+              right: 18,
+              bottom: tabBarHeight + insets.bottom + 14,
+            }}
           >
-            +
-          </Button>
-        </View>
+            <Button
+              variant="primary"
+              label="Add transaction"
+              onPress={() => setEditor({ review: false })}
+            >
+              + ADD
+            </Button>
+          </View>
+          <TabBar
+            tabs={tabs}
+            active={tab}
+            onChange={setTab}
+            badges={{
+              Review: dashboard.data?.reviewCount,
+              SMS: connectError || sms.data?.revoked ? "!" : undefined,
+            }}
+          />
+        </>
       )}
     </View>
   );

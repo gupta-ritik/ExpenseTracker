@@ -1,15 +1,39 @@
 import { useState } from "react";
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 import { useMutation } from "@tanstack/react-query";
 import { isSenderAllowed } from "@expense-tracker/shared/alerts";
 import { errorMessage } from "./api";
 import { bankSms, useSmsStatus } from "./bank-sms";
-import { Button, Card, Field, Label, Row, State, Title } from "./ui";
+import { Button, Card, Field, Heading, Label, Row, State, Title } from "./ui";
 
-export function SmsScreen({ reconnect }: { reconnect: () => void }) {
+/** Where each brand hides "let this app run in the background". */
+const batterySteps: [RegExp, string][] = [
+  [/xiaomi|redmi|poco/i, "App battery saver → No restrictions"],
+  [
+    /oppo|realme|oneplus/i,
+    "Battery usage → Allow background activity and auto launch",
+  ],
+  [/vivo|iqoo/i, "Battery → Background power consumption management → Allow"],
+  [/samsung/i, "Background usage limits → Never auto sleeping apps"],
+];
+
+function manufacturer() {
+  const constants = Platform.constants as { Manufacturer?: string };
+  return constants.Manufacturer ?? "";
+}
+
+export function SmsScreen({
+  reconnect,
+  connection,
+}: {
+  reconnect: () => void;
+  /** Device registration with the server, run by the app shell. */
+  connection?: { error: string | null; connecting: boolean; retry: () => void };
+}) {
   const status = useSmsStatus();
   const [explain, setExplain] = useState(false);
   const [paste, setPaste] = useState(false);
+  const [showSenders, setShowSenders] = useState(false);
   const [sender, setSender] = useState("");
   const [body, setBody] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -25,6 +49,8 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
   }
   const data = status.data;
   const connected = !!data?.deviceId && !data.revoked && !action.isPending;
+  const brand = manufacturer();
+  const brandStep = batterySteps.find(([pattern]) => pattern.test(brand))?.[1];
   return (
     <>
       <Title>Bank SMS</Title>
@@ -33,32 +59,71 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
         error={status.error}
         retry={() => void status.refetch()}
       />
+      {connection?.error && (
+        <Card>
+          <Label error>SMS capture isn&apos;t connected to your account.</Label>
+          <Label muted>
+            New bank SMS are kept on this phone until it connects. Check your
+            internet, then try again.
+          </Label>
+          <Button
+            variant="primary"
+            disabled={connection.connecting}
+            onPress={connection.retry}
+          >
+            {connection.connecting ? "CONNECTING…" : "CONNECT AGAIN"}
+          </Button>
+          <Label muted>Details: {connection.error}</Label>
+        </Card>
+      )}
       {data && (
         <>
           <Card>
+            <Heading>Status</Heading>
+            <Label>Live capture: {data.receivePermission ? "On" : "Off"}</Label>
             <Label>
-              LIVE CAPTURE · {data.receivePermission ? "ALLOWED" : "OFF"}
+              Past SMS import: {data.readPermission ? "Allowed" : "Not allowed"}
             </Label>
+            <Label>Waiting to send: {data.queueSize}</Label>
             <Label>
-              INBOX IMPORT · {data.readPermission ? "ALLOWED" : "OFF"}
-            </Label>
-            <Label>QUEUED · {data.queueSize}</Label>
-            <Label>
-              LAST SENT ·{" "}
+              Last sent:{" "}
               {data.lastSent
                 ? new Date(data.lastSent).toLocaleString("en-IN", {
                     timeZone: "Asia/Kolkata",
+                    dateStyle: "medium",
+                    timeStyle: "short",
                   })
-                : "NEVER"}
+                : "Never"}
             </Label>
             {data.revoked && (
               <>
-                <Label error>Device revoked: sign in again</Label>
-                <Button onPress={reconnect}>SIGN IN AGAIN</Button>
+                <Label error>
+                  This phone was disconnected. Sign in again to keep capturing.
+                </Label>
+                <Button variant="primary" onPress={reconnect}>
+                  SIGN IN AGAIN
+                </Button>
               </>
             )}
             {!data.revoked && data.lastError && (
               <Label error>{data.lastError}</Label>
+            )}
+            {data.queueSize > 0 && (
+              <Row>
+                <Button
+                  disabled={!connected}
+                  onPress={() => run(() => bankSms.retryNow())}
+                >
+                  SEND NOW
+                </Button>
+                <Button
+                  variant="quiet"
+                  disabled={action.isPending}
+                  onPress={() => run(() => bankSms.clearQueue())}
+                >
+                  DISCARD QUEUE
+                </Button>
+              </Row>
             )}
           </Card>
           {(!data.receivePermission || !data.readPermission) && (
@@ -73,7 +138,7 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
               )}
               {explain && (
                 <Card>
-                  <Label>{"// BEFORE YOU ENABLE SMS"}</Label>
+                  <Heading>Before you enable SMS</Heading>
                   <Label>
                     The app checks sender IDs on your phone and reads the text
                     of bank alerts only. Inbox access is used only when you
@@ -95,12 +160,12 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                   <Label>
                     Revoke SMS access in Android app settings to stop capture
                     and inbox access. Revoke the device in ExpenseTracker
-                    Settings to stop delivery. Clear queue deletes pending
+                    Settings to stop delivery. Discard queue deletes pending
                     alerts. You can delete imported transactions in
                     ExpenseTracker.
                   </Label>
                   <Button
-                    selected
+                    variant="primary"
                     disabled={action.isPending}
                     onPress={() =>
                       run(async () => {
@@ -118,14 +183,17 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
               )}
             </>
           )}
-          <Label>{"// BANK SENDER IDS"}</Label>
-          <Label>
-            {data.senders.length
-              ? data.senders.join(" · ")
-              : "No sender IDs configured."}
-          </Label>
-          <Label>{"// IMPORT PAST BANK SMS"}</Label>
-          {data.readPermission ? (
+          <Heading>Import past bank SMS</Heading>
+          {!data.readPermission ? (
+            <Label muted>Allow SMS access above to import past alerts.</Label>
+          ) : !connected && !action.isPending ? (
+            <Label muted>Connect SMS capture first, then import.</Label>
+          ) : (
+            <Label muted>
+              Duplicates are skipped, so importing again is safe.
+            </Label>
+          )}
+          {data.readPermission && (
             <Row>
               {([1, 3, 6] as const).map((months) => (
                 <Button
@@ -139,15 +207,16 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                           setFeedback(
                             "Scanned " +
                               progress.scanned +
-                              " · queued " +
+                              " · found " +
                               progress.queued,
                           ),
                       );
                       try {
+                        const queued = await bankSms.importPastSms(months);
                         setFeedback(
-                          "Queued " +
-                            (await bankSms.importPastSms(months)) +
-                            " masked alerts.",
+                          queued
+                            ? `Found ${queued} bank alerts. They'll appear in Review and Activity shortly.`
+                            : "No new bank alerts found in that period.",
                         );
                       } finally {
                         listener.remove();
@@ -155,16 +224,18 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                     })
                   }
                 >
-                  {months} {months === 1 ? "MONTH" : "MONTHS"}
+                  {months === 1 ? "1 MONTH" : `${months} MONTHS`}
                 </Button>
               ))}
             </Row>
-          ) : (
-            <Label>Allow inbox access to import past alerts.</Label>
           )}
+          <Heading>Add one manually</Heading>
           <Row>
-            <Button onPress={() => setPaste(!paste)}>PASTE SMS</Button>
+            <Button onPress={() => setPaste(!paste)}>
+              {paste ? "HIDE PASTE" : "PASTE AN SMS"}
+            </Button>
             <Button
+              variant="quiet"
               disabled={!connected}
               onPress={() =>
                 run(async () => {
@@ -175,25 +246,13 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                   );
                   setFeedback(
                     accepted
-                      ? "Queued a synthetic ₹1.00 test transaction."
-                      : "HDFCBK is not enabled in your sender list.",
+                      ? "Sent a ₹1.00 test. It will appear in Review or Activity; delete it after."
+                      : "HDFCBK is not in your sender list.",
                   );
                 })
               }
             >
-              SEND TEST
-            </Button>
-            <Button
-              disabled={!connected || !data.queueSize}
-              onPress={() => run(() => bankSms.retryNow())}
-            >
-              RETRY QUEUE
-            </Button>
-            <Button
-              disabled={action.isPending || !data.queueSize}
-              onPress={() => run(() => bankSms.clearQueue())}
-            >
-              CLEAR QUEUE
+              SEND A TEST
             </Button>
           </Row>
           {paste && (
@@ -208,14 +267,14 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
               />
               <Field
                 accessibilityLabel="Bank SMS text"
-                placeholder="Paste bank SMS"
+                placeholder="Paste the bank SMS here"
                 value={body}
                 multiline
                 onChangeText={setBody}
                 maxLength={2000}
               />
               <Button
-                selected
+                variant="primary"
                 disabled={!connected || !body.trim() || !sender.trim()}
                 onPress={() =>
                   run(async () => {
@@ -225,44 +284,66 @@ export function SmsScreen({ reconnect }: { reconnect: () => void }) {
                     if (accepted) setBody("");
                     setFeedback(
                       accepted
-                        ? "Masked alert queued."
-                        : "This sender or message does not qualify.",
+                        ? "Added. It will appear in Review or Activity shortly."
+                        : "That sender isn't a bank in your list, or it isn't a transaction alert.",
                     );
                   })
                 }
               >
-                MASK AND QUEUE
+                ADD SMS
               </Button>
             </Card>
           )}
+          {!!feedback && <Label>{feedback}</Label>}
+          {action.isPending && <Label muted>Working…</Label>}
+          {action.error && <Label error>{errorMessage(action.error)}</Label>}
           <Card>
-            <Label>
-              {"// BATTERY · "}
-              {data.batteryOptimized ? "OPTIMIZATION ON" : "UNRESTRICTED"}
+            <Heading>Keep capture running</Heading>
+            <Label muted>
+              {data.batteryOptimized
+                ? "Battery saving may stop capture while the app is closed."
+                : "Battery saving is off for this app. Capture keeps running."}
             </Label>
-            <Button
-              disabled={action.isPending}
-              onPress={() => run(() => bankSms.openBatterySettings())}
-            >
-              OPEN BATTERY SETTINGS
-            </Button>
-            <Label>Xiaomi · App battery saver → No restrictions</Label>
-            <Label>
-              Oppo / Realme · Battery usage → Allow background activity and auto
-              launch
-            </Label>
-            <Label>
-              Vivo · Battery → Background power consumption management → Allow
-            </Label>
-            <Label>
-              Samsung · Background usage limits → Never auto sleeping apps
-            </Label>
+            {data.batteryOptimized && (
+              <>
+                {brandStep ? (
+                  <Label>On your phone: {brandStep}</Label>
+                ) : (
+                  <Label>
+                    In battery settings, allow this app to run in the
+                    background.
+                  </Label>
+                )}
+                <Button
+                  disabled={action.isPending}
+                  onPress={() => run(() => bankSms.openBatterySettings())}
+                >
+                  OPEN BATTERY SETTINGS
+                </Button>
+              </>
+            )}
           </Card>
+          <Heading>Banks we listen to</Heading>
+          <Label muted>
+            {data.senders.length
+              ? `${data.senders.length} bank and UPI sender IDs. Change them on the web.`
+              : "No sender IDs configured."}
+          </Label>
+          {data.senders.length > 0 && (
+            <Button
+              variant="quiet"
+              onPress={() => setShowSenders(!showSenders)}
+            >
+              {showSenders ? "HIDE LIST" : "SHOW LIST"}
+            </Button>
+          )}
+          {showSenders && (
+            <Label muted>
+              {data.senders.map((item) => item.replace(/^\*-/, "")).join(", ")}
+            </Label>
+          )}
         </>
       )}
-      {!!feedback && <Label>{feedback}</Label>}
-      {action.isPending && <Label>Working…</Label>}
-      {action.error && <Label error>{errorMessage(action.error)}</Label>}
     </>
   );
 }

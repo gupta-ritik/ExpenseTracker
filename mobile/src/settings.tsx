@@ -3,7 +3,7 @@ import { Linking } from "react-native";
 import { api, errorMessage, type Device } from "./api";
 import { apiBaseUrl } from "./auth";
 import { bankSms, useSmsStatus } from "./bank-sms";
-import { Button, Card, Label, State, Title } from "./ui";
+import { Button, Card, Heading, Label, State, Title } from "./ui";
 
 export function Settings({
   email,
@@ -35,33 +35,35 @@ export function Settings({
     <>
       <Title>Settings</Title>
       <Card>
-        <Label>{"// ACCOUNT"}</Label>
+        <Heading>Signed in as</Heading>
         <Label>{email}</Label>
         <Button onPress={signOut}>SIGN OUT</Button>
       </Card>
-      <Label>{"// DEVICES"}</Label>
+      <Heading>Phones capturing SMS</Heading>
       <State
         pending={query.isPending}
         error={query.error}
         retry={() => void query.refetch()}
       />
       {query.isSuccess && !devices.length && (
-        <Label>No devices registered.</Label>
+        <Label muted>No phones connected yet.</Label>
       )}
       {devices.map((device) => (
         <Card key={device.id}>
           <Label>
             {device.name}
-            {device.id === sms.data?.deviceId ? " · THIS DEVICE" : ""}
+            {device.id === sms.data?.deviceId ? " (this phone)" : ""}
           </Label>
           {device.revokedAt ? (
-            <Label>REVOKED</Label>
+            <Label muted>Disconnected</Label>
           ) : (
             <Button
+              variant="quiet"
               disabled={action.isPending}
+              label={`Disconnect ${device.name}`}
               onPress={() => action.mutate(device.id)}
             >
-              REVOKE
+              DISCONNECT
             </Button>
           )}
         </Card>

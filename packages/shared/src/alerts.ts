@@ -83,6 +83,13 @@ const account =
 const stop =
   /(?:\s+(?:on\s+\d|on\s+20\d\d|from\s+(?:\w+\s+)?(?:bank\s+)?a\/?c|using\s|via\s|(?:upi\s+)?ref(?:no|erence)?[ .:#]|utr[ .:#]|rrn[ .:#]|txn\.?\s+id|available\s+bal|avl\.?\s+(?:bal|lmt|limit)|updated\s+bal|balance|if\s+not\s+you|not\s+you|(?:in|to)\s+your\b|from\s+(?:\w+\s+){0,2}(?:upi|wallet|a\/?c|bank)\b)|\s*\(|\.\s+[A-Z]|\.?\s*UPI[:/]|[\r\n;]|\.$)/i;
 
+/**
+ * Help text banks append ("To dispute call …", "SMS BLOCK 1234 to …"). It holds
+ * words like "to" that the merchant extractor would otherwise read as a payee.
+ */
+const helpFooter =
+  /(?:^|[\s.;,/])(?:to\s+dispute|for\s+dispute|to\s+report|sms\s+block|call\s+(?:\[PHONE\]|\d[\d\s-]{5,}))\b[\s\S]*$/i;
+
 /** Bank-specific merchant templates, tried before the generic extractor. */
 const templates: {
   bank?: string;
@@ -219,13 +226,15 @@ export function parseAlert(
         Math.abs(debitMatch.index - position))
       ? "income"
       : "expense";
+  // Look for the merchant only in the transaction part, never in the help footer.
+  const body = text.replace(helpFooter, "");
   const template = templates
     .map((item) => ({
       item,
-      found: !item.bank || item.bank === bank ? item.pattern.exec(text) : null,
+      found: !item.bank || item.bank === bank ? item.pattern.exec(body) : null,
     }))
     .find((entry) => entry.found);
-  const context = text.slice(position + amountText[0].length);
+  const context = body.slice(position + amountText[0].length);
   const candidate =
     template?.found?.[template.item.merchant] ?? genericMerchant(context, type);
   const cleaned = candidate.split(stop)[0];

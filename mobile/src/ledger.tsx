@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { formatMoney, type Currency } from "@expense-tracker/shared/money";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
   api,
@@ -16,12 +16,23 @@ import {
   type Transaction,
 } from "./api";
 import {
+  dateHeading,
+  entryDetail,
+  entryTitle,
+  signedAmount,
+  useLookups,
+} from "./display";
+import {
   accent,
+  BigNumber,
   Button,
   Card,
   Field,
+  Heading,
   Label,
+  ListRow,
   Row,
+  Stat,
   State,
   Title,
   usePalette,
@@ -39,34 +50,33 @@ export function EntryLine({
   currency,
   open,
   remove,
+  withDate = false,
 }: {
   item: Transaction;
   currency: Currency;
   open?: () => void;
   remove?: () => void;
+  withDate?: boolean;
 }) {
-  const description = item.merchant || item.note || item.type;
-  const source = ["sms", "email", "pdf", "cas"].includes(item.source)
-    ? item.source.toUpperCase()
-    : "MANUAL";
-  const amount = item.type === "expense" ? -item.amountPaise : item.amountPaise;
-  const text =
-    description + " · " + formatMoney(amount, currency) + " [" + source + "]";
-  return open ? (
-    <Button
-      label={"Edit " + text}
+  const lookups = useLookups();
+  const title = entryTitle(item);
+  const amount = signedAmount(item, currency);
+  const detail = entryDetail(item, lookups.data, withDate);
+  return (
+    <ListRow
+      title={title}
+      detail={detail}
+      amount={amount}
+      income={item.type === "income"}
       onPress={open}
+      label={open ? `Edit ${title}, ${amount}, ${detail}` : undefined}
       accessibilityActions={
         remove ? [{ name: "delete", label: "Delete transaction" }] : undefined
       }
       onAccessibilityAction={(event) => {
         if (event.nativeEvent.actionName === "delete") remove?.();
       }}
-    >
-      {text}
-    </Button>
-  ) : (
-    <Label>{text}</Label>
+    />
   );
 }
 
@@ -80,9 +90,13 @@ export function Dashboard({
   const query = useDashboard();
   const { fg } = usePalette();
   const data = query.data;
+  const month = new Date().toLocaleDateString("en-IN", {
+    month: "long",
+    timeZone: "Asia/Kolkata",
+  });
   return (
     <>
-      <Title>Dashboard</Title>
+      <Title>Overview</Title>
       <State
         pending={query.isPending}
         error={query.error}
@@ -91,28 +105,56 @@ export function Dashboard({
       {data && (
         <>
           <Card>
-            <Label>{"// THIS MONTH"}</Label>
-            <Label>SPENT {formatMoney(data.expensePaise, data.currency)}</Label>
-            <Label>INCOME {formatMoney(data.incomePaise, data.currency)}</Label>
-            <Label>NET {formatMoney(data.netPaise, data.currency)}</Label>
+            <Heading>Spent in {month}</Heading>
+            <BigNumber
+              label={`Spent ${formatMoney(data.expensePaise, data.currency)}`}
+            >
+              {formatMoney(data.expensePaise, data.currency)}
+            </BigNumber>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <Stat
+                label="Income"
+                value={formatMoney(data.incomePaise, data.currency)}
+              />
+              <Stat
+                label="Net"
+                value={formatMoney(data.netPaise, data.currency)}
+              />
+            </View>
           </Card>
-          <Card>
-            <Label>{"// TOTAL BALANCE"}</Label>
-            <Label>{formatMoney(data.balancePaise, data.currency)}</Label>
-            <Label>{"// NET WORTH"}</Label>
-            <Label>{formatMoney(data.netWorthPaise, data.currency)}</Label>
-          </Card>
-          <Button selected onPress={review}>
-            REVIEW ({data.reviewCount})
-          </Button>
-          <Label>{"// BUDGETS"}</Label>
-          {data.budgets.length === 0 && <Label>No budgets this month.</Label>}
+          <View style={{ flexDirection: "row", gap: 12, paddingHorizontal: 2 }}>
+            <Stat
+              label="Total balance"
+              value={formatMoney(data.balancePaise, data.currency)}
+            />
+            <Stat
+              label="Net worth"
+              value={formatMoney(data.netWorthPaise, data.currency)}
+            />
+          </View>
+          {data.reviewCount > 0 && (
+            <Button variant="primary" onPress={review}>
+              {`REVIEW ${data.reviewCount} NEW ${data.reviewCount === 1 ? "TRANSACTION" : "TRANSACTIONS"}`}
+            </Button>
+          )}
+          <Heading>Budgets</Heading>
+          {data.budgets.length === 0 && (
+            <Label muted>No budgets this month. Set them on the web.</Label>
+          )}
           {data.budgets.map((budget) => (
             <Card key={budget.id}>
-              <Label>
-                {budget.name} · {formatMoney(budget.spentPaise, data.currency)}{" "}
-                / {formatMoney(budget.limitPaise, data.currency)}
-              </Label>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Label>{budget.name}</Label>
+                <Label muted>
+                  {formatMoney(budget.spentPaise, data.currency)} of{" "}
+                  {formatMoney(budget.limitPaise, data.currency)}
+                </Label>
+              </View>
               <View
                 accessible
                 accessibilityRole="progressbar"
@@ -131,16 +173,23 @@ export function Dashboard({
               </View>
             </Card>
           ))}
-          <Label>{"// LAST 5 TRANSACTIONS"}</Label>
-          {data.latest.length === 0 && <Label>No transactions yet.</Label>}
-          {data.latest.map((item) => (
-            <EntryLine
-              key={item.id}
-              item={item}
-              currency={data.currency}
-              open={() => edit(item.id)}
-            />
-          ))}
+          <Heading>Recent</Heading>
+          {data.latest.length === 0 && (
+            <Label muted>
+              No transactions yet. Tap + to add one, or import bank SMS.
+            </Label>
+          )}
+          <View>
+            {data.latest.map((item) => (
+              <EntryLine
+                key={item.id}
+                item={item}
+                currency={data.currency}
+                withDate
+                open={() => edit(item.id)}
+              />
+            ))}
+          </View>
         </>
       )}
     </>
@@ -185,10 +234,11 @@ export function Transactions({
       <Title>Transactions</Title>
       <Field
         accessibilityLabel="Search transactions"
-        placeholder="Search transactions"
+        placeholder="Search merchant or note"
         value={search}
         onChangeText={setSearch}
         maxLength={80}
+        returnKeyType="search"
       />
       <State
         pending={query.isPending}
@@ -199,32 +249,40 @@ export function Transactions({
         <Label error>{errorMessage(remove.error || undo.error)}</Label>
       )}
       {deleted && (
-        <Row>
-          <Label>Transaction deleted.</Label>
-          <Button
-            disabled={undo.isPending}
-            onPress={() => {
-              if (Date.parse(deleted.undoUntil) > Date.now())
-                undo.mutate(deleted.id);
-              else setDeleted(undefined);
-            }}
-          >
-            UNDO
-          </Button>
-        </Row>
+        <Card highlight>
+          <Row>
+            <View style={{ flex: 1 }}>
+              <Label>Transaction deleted.</Label>
+            </View>
+            <Button
+              disabled={undo.isPending}
+              onPress={() => {
+                if (Date.parse(deleted.undoUntil) > Date.now())
+                  undo.mutate(deleted.id);
+                else setDeleted(undefined);
+              }}
+            >
+              UNDO
+            </Button>
+          </Row>
+        </Card>
       )}
       {query.isSuccess && entries.length === 0 && (
-        <Label>
-          {search ? "No matching transactions." : "No transactions yet."}
+        <Label muted>
+          {search
+            ? "No transactions match your search."
+            : "No transactions yet. Tap + to add one."}
         </Label>
       )}
+      {entries.length > 0 && (
+        <Label muted>Tap a transaction to edit it. Swipe left to delete.</Label>
+      )}
       {entries.map((item, index) => (
-        <View key={item.id} style={{ gap: 8 }}>
+        <View key={item.id}>
           {item.date !== entries[index - 1]?.date && (
-            <Label>
-              {"// "}
-              {item.date}
-            </Label>
+            <View style={{ paddingTop: index ? 14 : 0, paddingBottom: 8 }}>
+              <Heading>{dateHeading(item.date)}</Heading>
+            </View>
           )}
           <Swipeable
             renderRightActions={() => (
@@ -253,7 +311,7 @@ export function Transactions({
           disabled={query.isFetchingNextPage}
           onPress={() => void query.fetchNextPage()}
         >
-          {query.isFetchingNextPage ? "LOADING…" : "LOAD MORE"}
+          {query.isFetchingNextPage ? "LOADING…" : "SHOW OLDER"}
         </Button>
       )}
     </>
@@ -268,6 +326,8 @@ export function Review({
   currency: Currency;
 }) {
   const client = useQueryClient();
+  const lookups = useLookups();
+  const [progress, setProgress] = useState<string>();
   const query = useInfiniteQuery({
     queryKey: ["review"],
     initialPageParam: null as string | null,
@@ -285,48 +345,110 @@ export function Review({
     onSuccess: () => void client.invalidateQueries(),
   });
   const items = query.data?.pages.flatMap((result) => result.items) ?? [];
+  const approveAll = useMutation({
+    mutationFn: async (ids: string[]) => {
+      for (const [index, id] of ids.entries()) {
+        setProgress(`Approving ${index + 1} of ${ids.length}…`);
+        await api("/review/" + id, "POST", { action: "approve" });
+      }
+    },
+    onSettled: () => {
+      setProgress(undefined);
+      void client.invalidateQueries();
+    },
+  });
+  const busy = decide.isPending || approveAll.isPending;
+  function confirmApproveAll() {
+    const ids = items.map((item) => item.id);
+    Alert.alert(
+      `Approve ${ids.length} transactions?`,
+      "They move to your ledger as they are. You can still edit them later.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Approve all", onPress: () => approveAll.mutate(ids) },
+      ],
+    );
+  }
   return (
     <>
-      <Title>Review queue</Title>
+      <Title>Review</Title>
       <State
         pending={query.isPending}
         error={query.error}
         retry={() => void query.refetch()}
       />
-      {decide.error && <Label error>{errorMessage(decide.error)}</Label>}
-      {query.isSuccess && !items.length && <Label>Nothing to review.</Label>}
-      {items.map((item) => (
-        <Card key={item.id}>
-          <EntryLine item={item} currency={currency} />
-          <Label>
-            {item.date}
-            {item.confidence === null
-              ? ""
-              : " · " + item.confidence + "% confidence"}
-          </Label>
-          <Row>
-            <Button
-              disabled={decide.isPending}
-              onPress={() => decide.mutate({ id: item.id, action: "approve" })}
-            >
-              APPROVE
-            </Button>
-            <Button onPress={() => edit(item.id)}>EDIT</Button>
-            <Button
-              disabled={decide.isPending}
-              onPress={() => decide.mutate({ id: item.id, action: "reject" })}
-            >
-              REJECT
-            </Button>
-          </Row>
-        </Card>
-      ))}
+      {(decide.error || approveAll.error) && (
+        <Label error>{errorMessage(decide.error || approveAll.error)}</Label>
+      )}
+      {query.isSuccess && !items.length && (
+        <Label muted>
+          All caught up. New bank SMS that need a check will appear here.
+        </Label>
+      )}
+      {items.length > 1 && (
+        <Row>
+          <View style={{ flex: 1 }}>
+            <Label muted>
+              {progress ??
+                `${items.length}${query.hasNextPage ? "+" : ""} captured transactions need a check.`}
+            </Label>
+          </View>
+          <Button variant="primary" disabled={busy} onPress={confirmApproveAll}>
+            APPROVE ALL
+          </Button>
+        </Row>
+      )}
+      {items.map((item) => {
+        const title = entryTitle(item);
+        const lowConfidence = item.confidence !== null && item.confidence < 80;
+        return (
+          <Card key={item.id}>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Label>{title}</Label>
+                <Label muted>{entryDetail(item, lookups.data, true)}</Label>
+              </View>
+              <Label>{signedAmount(item, currency)}</Label>
+            </View>
+            {lowConfidence && (
+              <Label error>Unsure about this one. Check the details.</Label>
+            )}
+            <Row>
+              <Button
+                variant="primary"
+                disabled={busy}
+                label={`Approve ${title}`}
+                onPress={() =>
+                  decide.mutate({ id: item.id, action: "approve" })
+                }
+              >
+                ✓ APPROVE
+              </Button>
+              <Button
+                disabled={busy}
+                label={`Edit ${title}`}
+                onPress={() => edit(item.id)}
+              >
+                EDIT
+              </Button>
+              <Button
+                variant="quiet"
+                disabled={busy}
+                label={`Reject ${title}`}
+                onPress={() => decide.mutate({ id: item.id, action: "reject" })}
+              >
+                REJECT
+              </Button>
+            </Row>
+          </Card>
+        );
+      })}
       {query.hasNextPage && (
         <Button
           disabled={query.isFetchingNextPage}
           onPress={() => void query.fetchNextPage()}
         >
-          {query.isFetchingNextPage ? "LOADING…" : "LOAD MORE"}
+          {query.isFetchingNextPage ? "LOADING…" : "SHOW MORE"}
         </Button>
       )}
     </>

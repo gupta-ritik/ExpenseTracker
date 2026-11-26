@@ -67,13 +67,17 @@ class BankSmsModule : Module() {
 
     private fun status(): Map<String, Any?> = synchronized(SmsState.lock) {
         val power = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val queued = state.owner?.let(state.outbox::count) ?: 0
         mapOf(
             "receivePermission" to has(Manifest.permission.RECEIVE_SMS),
             "readPermission" to has(Manifest.permission.READ_SMS),
             "batteryOptimized" to !power.isIgnoringBatteryOptimizations(context.packageName),
-            "queueSize" to (state.owner?.let(state.outbox::count) ?: 0),
+            "queueSize" to queued,
             "lastSent" to state.lastSent, "revoked" to state.revoked, "deviceId" to state.id,
-            "ownerId" to state.owner, "baseUrl" to state.baseUrl, "senders" to state.senders, "lastError" to state.lastError
+            "ownerId" to state.owner, "baseUrl" to state.baseUrl, "senders" to state.senders,
+            // A send error only matters while alerts are still waiting; after the queue
+            // empties (sent or cleared) it would otherwise linger until the next success.
+            "lastError" to (if (queued > 0 || state.revoked) state.lastError else null)
         )
     }
 
