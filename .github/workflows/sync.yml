@@ -22,7 +22,8 @@ jobs:
     steps:
       - name: Sync bank alert emails
         if: env.PROD_URL != '' && env.CRON_SECRET != ''
-        run: curl --fail-with-body -sS -X POST -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/email-sync"
+        run: |
+          curl --fail-with-body -sS -X POST -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/email-sync"
 
   nav:
     if: github.event.schedule == '30 17 * * *' || github.event_name == 'workflow_dispatch'
@@ -34,4 +35,5 @@ jobs:
     steps:
       - name: Update AMFI NAVs
         if: env.PROD_URL != '' && env.CRON_SECRET != ''
-        run: curl --fail-with-body -sS -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/nav"
+        run: |
+          curl --fail-with-body -sS -H "Authorization: Bearer $CRON_SECRET" "$PROD_URL/api/cron/nav"

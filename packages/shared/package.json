@@ -1,0 +1,17 @@
+{
+  "name": "@expense-tracker/shared",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./money": "./src/money.ts",
+    "./dates": "./src/dates.ts",
+    "./schemas": "./src/schemas.ts",
+    "./alerts": "./src/alerts.ts",
+    "./normalize": "./src/normalize.ts",
+    "./mask": "./src/mask.ts"
+  },
+  "dependencies": {
+    "date-fns": "^4.4.0",
+    "zod": "^4.6.7"
+  }
+}

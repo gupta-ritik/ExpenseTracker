@@ -47,9 +47,13 @@ export function auth() {
   return instance;
 }
 
-export const session = cache(async () =>
-  auth().api.getSession({ headers: await headers() }),
-);
+// Read the request headers before touching auth(): during `next build` this
+// marks the page dynamic, so the auth client (and its env and database) is
+// never built at prerender time.
+export const session = cache(async () => {
+  const requestHeaders = await headers();
+  return auth().api.getSession({ headers: requestHeaders });
+});
 
 export async function requireUser() {
   const active = await session();
